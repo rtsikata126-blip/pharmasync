@@ -1,13 +1,51 @@
 {
-  "name": "PharmaSync",
+  "name": "PharmaSync — Smart Medication Adherence",
   "short_name": "PharmaSync",
-  "description": "Smart medication adherence for pharmacists and patients.",
-  "start_url": "/",
+  "description": "Your personal medication assistant. View schedules, get reminders, and track your adherence.",
+  "start_url": "/patient",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#f5f8fc",
   "theme_color": "#2563eb",
+  "categories": ["health", "medical", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Patient Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open your medication dashboard",
+      "url": "/patient",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    }
   ]
 }

@@ -2,8 +2,9 @@ import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { AppHeader, StatCard, StatusBadge } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, todaysSchedule } from "@/lib/pharma-store";
+import { requestPermission, scheduleMedReminders } from "@/lib/notifications";
 import { Button } from "@/components/ui/button";
-import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History, Home, CheckCircle, Clock as ClockIcon } from "lucide-react";
+import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History, Home, CheckCircle, Clock as ClockIcon, BellRing, Download, X } from "lucide-react";
 
 export const Route = createFileRoute("/patient/$id")({
   head: () => ({ meta: [{ title: "My Medications — PharmaSync" }] }),
@@ -18,7 +19,9 @@ function PatientView() {
   const patient = usePatient(id);
   const [now, setNow] = useState(new Date());
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
-  // Track which (medId, time) combinations have been acted on today to avoid duplicate auto-misses
+  const [notifStatus, setNotifStatus] = useState<"idle" | "granted" | "denied" | "loading">("idle");
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installDismissed, setInstallDismissed] = useState(false);
   const actedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -33,18 +36,60 @@ function PatientView() {
     }
   }, [actionFeedback]);
 
+  // Capture install prompt
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  // Request notification permission when patient dashboard loads
+  useEffect(() => {
+    if (typeof Notification === "undefined") {
+      setNotifStatus("denied");
+      return;
+    }
+    if (Notification.permission === "granted") {
+      setNotifStatus("granted");
+      return;
+    }
+    if (Notification.permission === "denied") {
+      setNotifStatus("denied");
+      return;
+    }
+    // Ask for permission after a short delay
+    const timer = setTimeout(async () => {
+      setNotifStatus("loading");
+      const granted = await requestPermission();
+      setNotifStatus(granted ? "granted" : "denied");
+      if (granted && patient) {
+        // Schedule reminders for all current medications
+        for (const med of patient.medications) {
+          scheduleMedReminders(
+            patient.id,
+            med,
+            () => store.logDose(patient.id, med.id, "taken"),
+            () => store.logDose(patient.id, med.id, "missed")
+          );
+        }
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [patient?.id]);
+
   // Auto-mark as missed for schedule items that are past due and haven't been acted on
   useEffect(() => {
     if (!patient) return;
     const schedule = todaysSchedule(patient);
 
     for (const item of schedule) {
-      // Consider a dose "missed" if more than 15 minutes past the scheduled time
       if (item.minutesUntil < -15) {
         const key = `${item.med.id}@${item.time}`;
         if (actedRef.current.has(key)) continue;
 
-        // Check if a log already exists for this medication+time today
         const todayStr = new Date().toISOString().slice(0, 10);
         const alreadyLogged = patient.logs.some(l => {
           const logDate = l.scheduledTime.slice(0, 10);
@@ -59,7 +104,7 @@ function PatientView() {
         }
       }
     }
-  }, [patient, now]); // Re-run on patient data or time change
+  }, [patient, now]);
 
   if (!patient) return null;
 
@@ -73,11 +118,36 @@ function PatientView() {
 
   const handleAction = useCallback((medId: string, scheduledTime: string, status: "taken" | "late") => {
     store.logDose(id, medId, status);
-    // Mark this combo as acted on so auto-missed doesn't override
     const timeOnly = scheduledTime.slice(11, 16);
     actedRef.current.add(`${medId}@${timeOnly}`);
     setActionFeedback(status === "taken" ? "✓ Marked as Taken" : "⏰ Snoozed — will remind again");
   }, [id]);
+
+  const handleInstall = () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then((result: { outcome: string }) => {
+      if (result.outcome === "accepted") {
+        setInstallPrompt(null);
+      }
+    });
+  };
+
+  const requestNotifAgain = async () => {
+    setNotifStatus("loading");
+    const granted = await requestPermission();
+    setNotifStatus(granted ? "granted" : "denied");
+    if (granted && patient) {
+      for (const med of patient.medications) {
+        scheduleMedReminders(
+          patient.id,
+          med,
+          () => store.logDose(patient.id, med.id, "taken"),
+          () => store.logDose(patient.id, med.id, "missed")
+        );
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -97,6 +167,77 @@ function PatientView() {
         <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-top-2">
           <div className="rounded-2xl bg-success px-6 py-3 text-center text-base font-bold text-white shadow-lg">
             {actionFeedback}
+          </div>
+        </div>
+      )}
+
+      {/* Notification permission banner */}
+      {notifStatus === "idle" && (
+        <div className="mx-auto max-w-3xl px-4 pt-3 sm:px-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+            <BellRing className="h-8 w-8 shrink-0 text-primary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold">Enable Reminders</p>
+              <p className="text-xs text-muted-foreground">Allow notifications to receive medication reminders</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {notifStatus === "loading" && (
+        <div className="mx-auto max-w-3xl px-4 pt-3 sm:px-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4">
+            <BellRing className="h-8 w-8 shrink-0 animate-pulse text-primary" />
+            <p className="text-sm font-medium text-muted-foreground">Requesting notification permission...</p>
+          </div>
+        </div>
+      )}
+
+      {notifStatus === "denied" && (
+        <div className="mx-auto max-w-3xl px-4 pt-3 sm:px-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4">
+            <BellRing className="h-8 w-8 shrink-0 text-warning-foreground" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-warning-foreground">Notifications blocked</p>
+              <p className="text-xs text-muted-foreground">Enable notifications in your browser settings for medication reminders</p>
+            </div>
+            <Button onClick={requestNotifAgain} variant="outline" size="sm" className="h-9 shrink-0 rounded-xl text-xs">
+              Try Again
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {notifStatus === "granted" && (
+        <div className="mx-auto max-w-3xl px-4 pt-3 sm:px-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-success/30 bg-success/5 p-3">
+            <BellRing className="h-5 w-5 shrink-0 text-success" />
+            <p className="text-xs font-medium text-success">Reminders active — you'll be notified at medication times</p>
+          </div>
+        </div>
+      )}
+
+      {/* Install prompt banner */}
+      {installPrompt && !installDismissed && (
+        <div className="mx-auto max-w-3xl px-4 pt-3 sm:px-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-sm">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <Download className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-foreground">Install PharmaSync</p>
+              <p className="text-xs text-muted-foreground">Get medication reminders even when the app is closed</p>
+            </div>
+            <Button onClick={handleInstall} size="sm" className="h-9 shrink-0 rounded-xl px-4 font-semibold">
+              Install
+            </Button>
+            <button
+              onClick={() => setInstallDismissed(true)}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-secondary/50 transition-colors"
+              aria-label="Dismiss install prompt"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
@@ -199,7 +340,6 @@ function PatientView() {
                       {past ? "missed" : dueNow ? "due now" : countdownText(item.minutesUntil)}
                     </p>
                   </div>
-                  {/* Show Taken/Snooze buttons for items that are due and not yet acted on */}
                   {dueNow && !alreadyActed && (
                     <div className="flex gap-2">
                       <Button onClick={() => handleAction(item.med.id, getScheduledISO(item.time), "taken")} size="sm" className="h-10 rounded-xl bg-success text-white hover:bg-success/90"><CheckCircle className="mr-1 h-4 w-4" /> Take</Button>
