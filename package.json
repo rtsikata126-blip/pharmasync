@@ -4,6 +4,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "dev": "vite dev",
+    "build": "node build.js",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
     "generate:vapid": "node scripts/generate-vapid.js"
   },
   "dependencies": {
