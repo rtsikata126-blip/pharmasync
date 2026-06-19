@@ -1,17 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Pill, Stethoscope, User, ShieldCheck, QrCode, Activity, Bell } from "lucide-react";
+import { Pill, Stethoscope, User, ShieldCheck, Activity, Bell } from "lucide-react";
+import { useRedirectToDashboard } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "PharmaSync — Smart Medication Adherence" },
-      { name: "description", content: "Pharmacist-managed medication regimens with QR-based patient access, smart reminders, and adherence tracking." },
+      { name: "description", content: "Pharmacist-managed medication regimens with secure patient accounts, smart reminders, and adherence tracking." },
     ],
   }),
   component: Landing,
 });
 
 function Landing() {
+  useRedirectToDashboard();
+
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
@@ -37,10 +40,10 @@ function Landing() {
               Never miss a dose <span className="bg-gradient-to-r from-primary to-success bg-clip-text text-transparent">again.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-              PharmaSync connects pharmacists and chronic disease patients with smart reminders, QR-based access, and real-time adherence tracking, designed for everyone, from young to elderly.
+              PharmaSync connects pharmacists and chronic disease patients with smart reminders, secure patient accounts, and real-time adherence tracking, designed for everyone, from young to elderly.
             </p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <Link to="/pharmacist" className="card-elevated group flex items-center gap-4 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5">
+              <Link to="/login?role=pharmacist" className="card-elevated group flex items-center gap-4 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl gradient-brand text-white">
                   <Stethoscope className="h-7 w-7" />
                 </div>
@@ -49,7 +52,7 @@ function Landing() {
                   <p className="text-sm text-muted-foreground">Manage patient regimens</p>
                 </div>
               </Link>
-              <Link to="/patient/$id" params={{ id: "PAT-001" }} className="card-elevated group flex items-center gap-4 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5">
+              <Link to="/login?role=patient" className="card-elevated group flex items-center gap-4 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl gradient-health text-white">
                   <User className="h-7 w-7" />
                 </div>
@@ -99,9 +102,9 @@ function Landing() {
 
         <section className="mt-16 grid gap-4 sm:grid-cols-3">
           {[
-            { icon: QrCode, title: "QR-based access", desc: "Patients scan a unique code to view their schedule — no logins required." },
+            { icon: ShieldCheck, title: "Secure patient accounts", desc: "Each patient logs in to their own profile so only their medications and reminders are visible." },
             { icon: Bell, title: "Smart reminders", desc: "Time-based dose alerts with snooze, taken, and missed tracking." },
-            { icon: ShieldCheck, title: "Pharmacist-controlled", desc: "Only pharmacists can edit regimens — patients only confirm doses." },
+            { icon: Pill, title: "Pharmacist-controlled", desc: "Only pharmacists can edit regimens — patients only view reminders and history." },
           ].map(f => (
             <div key={f.title} className="card-elevated rounded-2xl border bg-card p-5">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary"><f.icon className="h-5 w-5" /></div>

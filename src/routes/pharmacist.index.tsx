@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Users, Pill, AlertTriangle, TrendingUp, ChevronRight } from "lucide-react";
+import { Plus, Users, Pill, AlertTriangle, TrendingUp, ChevronRight, LogOut } from "lucide-react";
 import { AppHeader } from "@/components/pharma-ui";
 import { usePatients, store, adherenceStats } from "@/lib/pharma-store";
+import { useRequireAuth, signOut } from "@/lib/auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/pharmacist/")({
 function PharmacistDashboard() {
   const patients = usePatients();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ fullName: "", age: "", gender: "Male" as "Male" | "Female" | "Other", phone: "", ghanaHealthId: "" });
+  const [form, setForm] = useState({ fullName: "", age: "", gender: "Male" as "Male" | "Female" | "Other", phone: "", ghanaHealthId: "", password: "", confirmPassword: "" });
 
   const totalMeds = patients.reduce((s, p) => s + p.medications.length, 0);
   const lowRefills = patients.reduce((s, p) => s + p.medications.filter(m => m.refillDays <= 7).length, 0);
@@ -26,40 +27,50 @@ function PharmacistDashboard() {
 
   const submit = () => {
     if (!form.fullName || !form.age) return toast.error("Name and age are required");
-    const id = store.addPatient({ fullName: form.fullName, age: Number(form.age), gender: form.gender, phone: form.phone, ghanaHealthId: form.ghanaHealthId });
+    if (!form.password) return toast.error("Patient password is required");
+    if (form.password !== form.confirmPassword) return toast.error("Passwords must match");
+    const id = store.addPatient({ fullName: form.fullName, age: Number(form.age), gender: form.gender, phone: form.phone, ghanaHealthId: form.ghanaHealthId, password: form.password });
     toast.success(`Patient created (${id})`);
     setOpen(false);
-    setForm({ fullName: "", age: "", gender: "Male", phone: "", ghanaHealthId: "" });
+    setForm({ fullName: "", age: "", gender: "Male", phone: "", ghanaHealthId: "", password: "", confirmPassword: "" });
   };
+
+  const authorized = useRequireAuth('pharmacist');
+  const navigate = useNavigate();
+
+  if (!authorized) return null;
 
   return (
     <div className="min-h-screen bg-background">
       <AppHeader title="Pharmacist" subtitle="Dr. A. Owusu • Greenfield Pharmacy" backTo="/" right={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="h-11 gap-2 rounded-xl px-4 font-semibold"><Plus className="h-5 w-5" /> <span className="hidden sm:inline">New Patient</span></Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader><DialogTitle>Create Patient Profile</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>Full Name</Label><Input value={form.fullName} onChange={e => setForm({ ...form, fullName: e.target.value })} placeholder="Akua Asante" /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>Age</Label><Input type="number" value={form.age} onChange={e => setForm({ ...form, age: e.target.value })} /></div>
-                <div><Label>Gender</Label>
-                  <Select value={form.gender} onValueChange={(v: "Male" | "Female" | "Other") => setForm({ ...form, gender: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => { signOut(); navigate({ to: '/login', replace: true, search: { role: 'pharmacist' } }); }} variant="ghost" size="sm" className="h-11 gap-2"><LogOut className="h-4 w-4" /> Sign out</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="h-11 gap-2 rounded-xl px-4 font-semibold"><Plus className="h-5 w-5" /> <span className="hidden sm:inline">New Patient</span></Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader><DialogTitle>Create Patient Profile</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div><Label>Full Name</Label><Input value={form.fullName} onChange={e => setForm({ ...form, fullName: e.target.value })} placeholder="Akua Asante" /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Age</Label><Input type="number" value={form.age} onChange={e => setForm({ ...form, age: e.target.value })} /></div>
+                  <div><Label>Gender</Label>
+                    <Select value={form.gender} onValueChange={(v: "Male" | "Female" | "Other") => setForm({ ...form, gender: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                <div><Label>Phone Number</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+233 ..." /></div>
+                <div><Label>Ghana Health ID</Label><Input value={form.ghanaHealthId} onChange={e => setForm({ ...form, ghanaHealthId: e.target.value })} placeholder="GHA-XXXX-XXXXXX" /></div>
               </div>
-              <div><Label>Phone Number</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+233 ..." /></div>
-              <div><Label>Ghana Health ID</Label><Input value={form.ghanaHealthId} onChange={e => setForm({ ...form, ghanaHealthId: e.target.value })} placeholder="GHA-XXXX-XXXXXX" /></div>
-            </div>
-            <DialogFooter><Button onClick={submit} className="w-full">Create Patient</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter><Button onClick={submit} className="w-full">Create Patient</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       } />
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">

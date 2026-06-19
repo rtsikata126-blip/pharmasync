@@ -1,14 +1,15 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppHeader, StatCard } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, type Medication, type Frequency, type FoodInstruction } from "@/lib/pharma-store";
+import { useRequireAuth, signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pill, Plus, Pencil, Trash2, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X } from "lucide-react";
+import { Pill, Plus, Pencil, Trash2, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X, Zap, Send, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pharmacist/patient/$id")({
@@ -23,16 +24,30 @@ const FOODS: FoodInstruction[] = ["Before meals", "With meals", "After meals", "
 
 function PharmacistPatient() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const authorized = useRequireAuth("pharmacist");
   const patient = usePatient(id);
   const [editing, setEditing] = useState<Medication | null>(null);
 
+  if (!authorized) return null;
   if (!patient) return null;
   const s = adherenceStats(patient);
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title={patient.fullName} subtitle={`${patient.id} • ${patient.age}y • ${patient.gender}`} backTo="/pharmacist" right={
-        <SharePatientButton patient={patient} />
+        <div className="flex items-center gap-2">
+          <Button onClick={() => { signOut(); navigate({ to: '/login', replace: true }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex"><LogOut className="h-4 w-4" /> Sign out</Button>
+          <Button onClick={async () => {
+            try {
+              const payload = { title: 'Test Reminder', body: `This is a test reminder for ${patient.fullName}` };
+              const res = await fetch('/api/push/send', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ patientId: patient.id, payload }) });
+              const j = await res.json();
+              console.log(j);
+              toast.success('Test push sent');
+            } catch (e) { console.error(e); toast.error('Send failed'); }
+          }} variant="secondary" size="sm" className="h-9 gap-2"><Send className="h-4 w-4" /> Send Test</Button>
+        </div>
       } />
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
@@ -186,24 +201,3 @@ function Field({ icon, label, value }: { icon: React.ReactNode; label: string; v
   );
 }
 
-function SharePatientButton({ patient }: { patient: { id: string; fullName: string } }) {
-  const shareLink = typeof window !== "undefined" ? `${window.location.origin}/patient/${patient.id}` : `/patient/${patient.id}`;
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="secondary" size="lg" className="h-11 gap-2 rounded-xl"><IdCard className="h-5 w-5" /><span className="hidden sm:inline">Share</span></Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Patient Link</DialogTitle>
-          <DialogDescription>Share this read-only link with the patient (pharmacist-managed access).</DialogDescription>
-        </DialogHeader>
-        <div className="mt-4 flex items-center gap-3">
-          <input readOnly value={shareLink} className="w-full rounded-md border px-3 py-2 text-sm font-mono text-muted-foreground" />
-          <Button onClick={() => { navigator.clipboard?.writeText(shareLink); toast.success("Link copied"); }} size="sm">Copy</Button>
-        </div>
-        <p className="mt-3 text-xs text-muted-foreground">Patient ID: <span className="font-mono">{patient.id}</span></p>
-      </DialogContent>
-    </Dialog>
-  );
-}

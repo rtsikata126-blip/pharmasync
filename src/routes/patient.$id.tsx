@@ -1,8 +1,10 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppHeader, StatCard, StatusBadge } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, todaysSchedule } from "@/lib/pharma-store";
-import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History } from "lucide-react";
+import { useRequireAuth, signOut } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/patient/$id")({
   head: () => ({ meta: [{ title: "My Medications — PharmaSync" }] }),
@@ -13,9 +15,12 @@ export const Route = createFileRoute("/patient/$id")({
 
 function PatientView() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const authorized = useRequireAuth("patient", id);
   const patient = usePatient(id);
   const [now, setNow] = useState(new Date());
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
+  if (!authorized) return null;
   if (!patient) return null;
 
   const s = adherenceStats(patient);
@@ -28,7 +33,16 @@ function PatientView() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <AppHeader title={`Hello, ${patient.fullName.split(" ")[0]} 👋`} subtitle={now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })} backTo="/" />
+      <AppHeader
+        title={`Hello, ${patient.fullName.split(" ")[0]} 👋`}
+        subtitle={now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+        backTo="/"
+        right={
+          <Button onClick={() => { signOut(); navigate({ to: "/login", replace: true, search: { role: "patient" } }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex">
+            <LogOut className="h-4 w-4" /> Sign out
+          </Button>
+        }
+      />
 
       <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
         {/* Hero next-dose card */}
