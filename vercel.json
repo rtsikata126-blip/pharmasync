@@ -4,14 +4,18 @@
   "devCommand": "npm run dev",
   "outputDirectory": "dist/client",
   "framework": "vite",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/assets/(.*)",
-      "destination": "/assets/$1"
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/api"
+      "src": "/manifest.webmanifest",
+      "dest": "/manifest.webmanifest"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api"
     }
   ]
 }

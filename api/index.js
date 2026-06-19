@@ -1,49 +1,64 @@
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+let handler;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-let serverHandler;
-
-async function getServerHandler() {
-  if (!serverHandler) {
-    const handlerPath = join(__dirname, '../dist/server/server.js');
-    const module = await import(handlerPath);
-    serverHandler = module.default;
+async function getHandler() {
+  if (!handler) {
+    try {
+      const serverModule = await import('../dist/server/server.js');
+      handler = serverModule.default;
+    } catch (err) {
+      console.error('Failed to import server:', err);
+      throw err;
+    }
   }
-  return serverHandler;
+  return handler;
 }
 
 export default async (req, res) => {
   try {
-    const handler = await getServerHandler();
+    const handler = await getHandler();
     
-    // Convert Vercel request to Fetch API Request
-    const url = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}${req.url}`;
-    const fetchRequest = new Request(url, {
+    // Build the full URL
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
+    const url = `${protocol}://${host}${req.url}`;
+
+    // Create a Fetch API Request
+    const init = {
       method: req.method,
       headers: req.headers,
-      body: req.method !== 'GET' && req.method !== 'HEAD' ? req : undefined,
+    };
+
+    // Add body for non-GET/HEAD requests
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(chunk);
+      }
+      if (chunks.length > 0) {
+        init.body = Buffer.concat(chunks);
+      }
+    }
+
+    const request = new Request(url, init);
+    const response = await handler.fetch(request, {}, {});
+
+    // Copy response headers
+    response.headers.forEach((value, name) => {
+      res.setHeader(name, value);
     });
 
-    // Call the TanStack Start server handler
-    const response = await handler.fetch(fetchRequest, {}, {});
-
-    // Set response status
+    // Set status
     res.status(response.status);
 
-    // Set response headers
-    response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
-    });
-
-    // Send response body
+    // Send body
     const body = await response.text();
-    res.end(body);
+    res.send(body);
   } catch (error) {
     console.error('Handler error:', error);
-    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message,
+    });
   }
 };
 
