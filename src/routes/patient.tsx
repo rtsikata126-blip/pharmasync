@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/pharma-ui";
 import { usePatients } from "@/lib/pharma-store";
-import { setRole, setSelectedPatient } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,12 +18,6 @@ function PatientPortal() {
   const [patientId, setPatientId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!patientId && patients.length > 0) {
-      setPatientId(patients[0].id);
-    }
-  }, [patients, patientId]);
-
   const selectedPatient = useMemo(
     () => patients.find((patient) => patient.id === patientId),
     [patients, patientId],
@@ -37,8 +30,6 @@ function PatientPortal() {
       return;
     }
     setError(null);
-    setRole("patient");
-    setSelectedPatient(id);
     navigate({ to: `/patient/${id}` });
   };
 
@@ -49,12 +40,12 @@ function PatientPortal() {
         <div className="rounded-[2rem] border border-border bg-card p-8 shadow-sm">
           <div className="space-y-5">
             <div>
-              <Label>Enter Patient ID</Label>
+              <Label className="text-base font-semibold">Enter Patient ID</Label>
               <Input
                 value={patientId}
                 onChange={(event) => setPatientId(event.target.value.toUpperCase())}
                 placeholder="PMS-1001"
-                className="mt-2"
+                className="mt-2 h-12 text-lg"
               />
             </div>
             {selectedPatient ? (
@@ -67,14 +58,14 @@ function PatientPortal() {
 
             {error ? <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
 
-            <Button onClick={() => openPatient(patientId)} className="w-full">
+            <Button onClick={() => openPatient(patientId)} className="w-full h-14 text-lg font-bold rounded-2xl">
               Open Patient Dashboard
             </Button>
 
-            <div className="pt-4">
-              <p className="text-sm font-semibold text-muted-foreground">Demo patient</p>
-              <Button onClick={() => openPatient("PMS-1001")} variant="secondary" className="mt-3 w-full">
-                <User className="mr-2 h-4 w-4" /> Open Demo Patient
+            <div className="pt-4 border-t border-border">
+              <p className="text-sm font-semibold text-muted-foreground mb-3">Demo Patient</p>
+              <Button onClick={() => openPatient("PMS-1001")} variant="secondary" className="w-full h-14 text-lg font-semibold rounded-2xl">
+                <User className="mr-3 h-6 w-6" /> Open Demo Patient
               </Button>
             </div>
           </div>

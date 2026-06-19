@@ -1,15 +1,14 @@
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader, StatCard } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, type Medication, type Frequency, type FoodInstruction } from "@/lib/pharma-store";
-import { useRequireAuth, signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pill, Plus, Pencil, Trash2, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X, Zap, Send, LogOut } from "lucide-react";
+import { Pill, Plus, Pencil, Trash2, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pharmacist/patient/$id")({
@@ -25,28 +24,44 @@ const FOODS: FoodInstruction[] = ["Before meals", "With meals", "After meals", "
 function PharmacistPatient() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const authorized = useRequireAuth("pharmacist");
   const patient = usePatient(id);
   const [editing, setEditing] = useState<Medication | null>(null);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState({ fullName: "", age: "", gender: "Male" as "Male" | "Female" | "Other", phone: "", ghanaHealthId: "" });
 
-  if (!authorized) return null;
   if (!patient) return null;
   const s = adherenceStats(patient);
+
+  const openProfileEdit = () => {
+    setProfileForm({
+      fullName: patient.fullName,
+      age: String(patient.age),
+      gender: patient.gender,
+      phone: patient.phone,
+      ghanaHealthId: patient.ghanaHealthId,
+    });
+    setEditProfileOpen(true);
+  };
+
+  const saveProfile = () => {
+    if (!profileForm.fullName || !profileForm.age) return toast.error("Name and age are required");
+    store.updatePatient(patient.id, {
+      fullName: profileForm.fullName,
+      age: Number(profileForm.age),
+      gender: profileForm.gender,
+      phone: profileForm.phone,
+      ghanaHealthId: profileForm.ghanaHealthId,
+    });
+    toast.success("Patient profile updated");
+    setEditProfileOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title={patient.fullName} subtitle={`${patient.id} • ${patient.age}y • ${patient.gender}`} backTo="/pharmacist" right={
         <div className="flex items-center gap-2">
-          <Button onClick={() => { signOut(); navigate({ to: '/pharmacist' }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex"><LogOut className="h-4 w-4" /> Home</Button>
-          <Button onClick={async () => {
-            try {
-              const payload = { title: 'Test Reminder', body: `This is a test reminder for ${patient.fullName}` };
-              const res = await fetch('/api/push/send', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ patientId: patient.id, payload }) });
-              const j = await res.json();
-              console.log(j);
-              toast.success('Test push sent');
-            } catch (e) { console.error(e); toast.error('Send failed'); }
-          }} variant="secondary" size="sm" className="h-9 gap-2"><Send className="h-4 w-4" /> Send Test</Button>
+          <Button onClick={() => navigate({ to: '/pharmacist' })} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex"><LogOut className="h-4 w-4" /> Back</Button>
+          <Button onClick={openProfileEdit} variant="secondary" size="sm" className="h-9 gap-2"><Pencil className="h-4 w-4" /> Edit Profile</Button>
         </div>
       } />
 
@@ -112,7 +127,29 @@ function PharmacistPatient() {
 
       <MedDialog patientId={patient.id} med={editing} onClose={() => setEditing(null)} />
 
-      {/* Share dialog component is rendered by SharePatientButton */}
+      {/* Edit Profile Dialog */}
+      <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>Edit Patient Profile</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>Full Name</Label><Input value={profileForm.fullName} onChange={e => setProfileForm({ ...profileForm, fullName: e.target.value })} placeholder="Patient name" /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Age</Label><Input type="number" value={profileForm.age} onChange={e => setProfileForm({ ...profileForm, age: e.target.value })} /></div>
+              <div><Label>Gender</Label>
+                <Select value={profileForm.gender} onValueChange={(v: "Male" | "Female" | "Other") => setProfileForm({ ...profileForm, gender: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div><Label>Phone Number</Label><Input value={profileForm.phone} onChange={e => setProfileForm({ ...profileForm, phone: e.target.value })} /></div>
+            <div><Label>Ghana Health ID</Label><Input value={profileForm.ghanaHealthId} onChange={e => setProfileForm({ ...profileForm, ghanaHealthId: e.target.value })} /></div>
+          </div>
+          <DialogFooter><Button onClick={saveProfile} className="w-full">Save Changes</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -123,7 +160,9 @@ function blankMed(): Medication {
 
 function MedDialog({ patientId, med, onClose }: { patientId: string; med: Medication | null; onClose: () => void }) {
   const [f, setF] = useState<Medication>(med ?? blankMed());
-  useEffect(() => { if (med) setF(med); }, [med]);
+  useEffect(() => {
+    if (med) setF(med);
+  }, [med]);
   if (!med) return null;
   const save = () => {
     if (!f.name || !f.strength) return toast.error("Name and strength required");
@@ -200,4 +239,3 @@ function Field({ icon, label, value }: { icon: React.ReactNode; label: string; v
     </div>
   );
 }
-

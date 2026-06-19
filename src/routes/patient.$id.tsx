@@ -1,10 +1,9 @@
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AppHeader, StatCard, StatusBadge } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, todaysSchedule } from "@/lib/pharma-store";
-import { useRequireAuth, signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History, LogOut } from "lucide-react";
+import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History, Home, CheckCircle, Clock as ClockIcon } from "lucide-react";
 
 export const Route = createFileRoute("/patient/$id")({
   head: () => ({ meta: [{ title: "My Medications — PharmaSync" }] }),
@@ -16,11 +15,52 @@ export const Route = createFileRoute("/patient/$id")({
 function PatientView() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const authorized = useRequireAuth("patient", id);
   const patient = usePatient(id);
   const [now, setNow] = useState(new Date());
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
-  if (!authorized) return null;
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  // Track which (medId, time) combinations have been acted on today to avoid duplicate auto-misses
+  const actedRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 15000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    if (actionFeedback) {
+      const t = setTimeout(() => setActionFeedback(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [actionFeedback]);
+
+  // Auto-mark as missed for schedule items that are past due and haven't been acted on
+  useEffect(() => {
+    if (!patient) return;
+    const schedule = todaysSchedule(patient);
+
+    for (const item of schedule) {
+      // Consider a dose "missed" if more than 15 minutes past the scheduled time
+      if (item.minutesUntil < -15) {
+        const key = `${item.med.id}@${item.time}`;
+        if (actedRef.current.has(key)) continue;
+
+        // Check if a log already exists for this medication+time today
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const alreadyLogged = patient.logs.some(l => {
+          const logDate = l.scheduledTime.slice(0, 10);
+          const medMatch = l.medicationId === item.med.id;
+          const logHour = l.scheduledTime.slice(11, 16);
+          return logDate === todayStr && medMatch && logHour === item.time;
+        });
+
+        if (!alreadyLogged) {
+          actedRef.current.add(key);
+          store.logDose(patient.id, item.med.id, "missed");
+        }
+      }
+    }
+  }, [patient, now]); // Re-run on patient data or time change
+
   if (!patient) return null;
 
   const s = adherenceStats(patient);
@@ -31,6 +71,14 @@ function PatientView() {
   const recent = [...patient.logs].sort((a,b) => b.scheduledTime.localeCompare(a.scheduledTime)).slice(0, 8);
   const medById = (mid: string) => patient.medications.find(m => m.id === mid);
 
+  const handleAction = useCallback((medId: string, scheduledTime: string, status: "taken" | "late") => {
+    store.logDose(id, medId, status);
+    // Mark this combo as acted on so auto-missed doesn't override
+    const timeOnly = scheduledTime.slice(11, 16);
+    actedRef.current.add(`${medId}@${timeOnly}`);
+    setActionFeedback(status === "taken" ? "✓ Marked as Taken" : "⏰ Snoozed — will remind again");
+  }, [id]);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <AppHeader
@@ -38,11 +86,20 @@ function PatientView() {
         subtitle={now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
         backTo="/"
         right={
-          <Button onClick={() => { signOut(); navigate({ to: "/patient" }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex">
-            <LogOut className="h-4 w-4" /> Back
+          <Button onClick={() => navigate({ to: "/patient" })} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex">
+            <Home className="h-4 w-4" /> Back
           </Button>
         }
       />
+
+      {/* Feedback toast */}
+      {actionFeedback && (
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-top-2">
+          <div className="rounded-2xl bg-success px-6 py-3 text-center text-base font-bold text-white shadow-lg">
+            {actionFeedback}
+          </div>
+        </div>
+      )}
 
       <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
         {/* Hero next-dose card */}
@@ -63,9 +120,39 @@ function PatientView() {
                   <p className="text-2xl font-bold">{countdownText(next.minutesUntil)}</p>
                 </div>
               </div>
-              <div className="mt-5 flex gap-3">
-                <div className="h-14 flex-1 rounded-2xl bg-white/10 text-primary text-base font-bold flex items-center justify-center">Reminder sent — please follow pharmacist instructions</div>
-              </div>
+
+              {/* Taken / Snooze buttons for the next medication */}
+              {next.minutesUntil <= 15 && next.minutesUntil >= -15 && (
+                <div className="mt-5 flex gap-3">
+                  <Button
+                    onClick={() => handleAction(next.med.id, getScheduledISO(next.time), "taken")}
+                    className="flex-1 h-14 rounded-2xl bg-white text-primary text-base font-bold hover:bg-white/90 transition-all active:scale-95"
+                  >
+                    <CheckCircle className="mr-2 h-6 w-6" /> Taken
+                  </Button>
+                  <Button
+                    onClick={() => handleAction(next.med.id, getScheduledISO(next.time), "late")}
+                    variant="secondary"
+                    className="flex-1 h-14 rounded-2xl bg-white/20 text-white border border-white/30 text-base font-bold hover:bg-white/30 transition-all active:scale-95"
+                  >
+                    <ClockIcon className="mr-2 h-6 w-6" /> Snooze
+                  </Button>
+                </div>
+              )}
+              {next.minutesUntil > 15 && (
+                <div className="mt-5">
+                  <div className="h-14 rounded-2xl bg-white/10 text-white/80 text-base font-bold flex items-center justify-center">
+                    Reminder will appear at {formatTime(next.time)}
+                  </div>
+                </div>
+              )}
+              {next.minutesUntil < -15 && (
+                <div className="mt-5">
+                  <div className="h-14 rounded-2xl bg-red-500/30 text-white text-base font-bold flex items-center justify-center gap-2">
+                    <AlertTriangle className="h-5 w-5" /> Missed — contact your pharmacist
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -94,7 +181,10 @@ function PatientView() {
           <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Today's Schedule</h2>
           <div className="space-y-3">
             {schedule.map((item, i) => {
-              const past = item.minutesUntil < -30;
+              const past = item.minutesUntil < -15;
+              const dueNow = item.minutesUntil <= 15 && item.minutesUntil >= -15;
+              const key = `${item.med.id}@${item.time}`;
+              const alreadyActed = actedRef.current.has(key);
               return (
                 <div key={i} className={`card-elevated flex items-center gap-4 rounded-2xl border bg-card p-4 ${past ? "opacity-60" : ""}`}>
                   <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl gradient-health text-white"><Pill className="h-7 w-7" /></div>
@@ -105,8 +195,20 @@ function PatientView() {
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-extrabold">{formatTime(item.time)}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{past ? "earlier" : countdownText(item.minutesUntil)}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {past ? "missed" : dueNow ? "due now" : countdownText(item.minutesUntil)}
+                    </p>
                   </div>
+                  {/* Show Taken/Snooze buttons for items that are due and not yet acted on */}
+                  {dueNow && !alreadyActed && (
+                    <div className="flex gap-2">
+                      <Button onClick={() => handleAction(item.med.id, getScheduledISO(item.time), "taken")} size="sm" className="h-10 rounded-xl bg-success text-white hover:bg-success/90"><CheckCircle className="mr-1 h-4 w-4" /> Take</Button>
+                      <Button onClick={() => handleAction(item.med.id, getScheduledISO(item.time), "late")} size="sm" variant="outline" className="h-10 rounded-xl"><ClockIcon className="mr-1 h-4 w-4" /> Snooze</Button>
+                    </div>
+                  )}
+                  {alreadyActed && (
+                    <span className="text-xs font-semibold text-success">✓ Done</span>
+                  )}
                 </div>
               );
             })}
@@ -142,10 +244,17 @@ function formatTime(t: string) {
   const d = new Date(); d.setHours(h, m);
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
+
 function countdownText(mins: number) {
-  if (mins < -30) return "missed";
   if (mins < 0) return "due now";
   if (mins < 60) return `in ${mins}m`;
   const h = Math.floor(mins / 60); const m = mins % 60;
   return `in ${h}h ${m}m`;
+}
+
+function getScheduledISO(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.toISOString();
 }

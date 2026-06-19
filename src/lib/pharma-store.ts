@@ -159,6 +159,14 @@ export const store = {
       }).catch(() => {});
     } catch (e) {}
   },
+  updatePatient(id: string, data: Partial<Omit<Patient, "id" | "medications" | "logs">>) {
+    patients = patients.map(p => p.id === id ? { ...p, ...data } : p);
+    store.emit();
+  },
+  deletePatient(id: string) {
+    patients = patients.filter(p => p.id !== id);
+    store.emit();
+  },
   removeMed(patientId: string, medId: string) {
     patients = patients.map(p => p.id === patientId ? { ...p, medications: p.medications.filter(m => m.id !== medId) } : p);
     store.emit();
