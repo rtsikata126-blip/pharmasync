@@ -7,13 +7,15 @@
   "routes": [
     {
       "src": "/assets/(.*)",
-      "dest": "/assets/$1",
-      "continue": true
+      "dest": "/assets/$1"
     },
     {
-      "src": "/manifest.webmanifest",
-      "dest": "/manifest.webmanifest",
-      "continue": true
+      "src": "/favicon\\.(ico|png|svg|webp)$",
+      "dest": "/favicon.svg"
+    },
+    {
+      "src": "/manifest\\.webmanifest$",
+      "dest": "/manifest.webmanifest"
     },
     {
       "src": "/(.*)",

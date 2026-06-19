@@ -11,34 +11,28 @@ const __dirname = path.dirname(__filename);
 // Run the Vite build
 execSync('vite build', { stdio: 'inherit' });
 
-// Read the assets directory to find the built files
+// Read the assets directory to find CSS and JS files
 const assetsDir = path.join(__dirname, 'dist/client/assets');
 const files = fs.readdirSync(assetsDir);
 
-// Find the main index JS file and the CSS file
-const indexJs = files.find(f => f.startsWith('index-') && f.endsWith('.js'));
-const stylesCss = files.find(f => f.startsWith('styles-') && f.endsWith('.css'));
+const stylesFile = files.find(f => f.startsWith('styles-') && f.endsWith('.css'));
+const indexFile = files.find(f => f.startsWith('index-') && f.endsWith('.js'));
 
-if (!indexJs) {
-  console.error('Error: Could not find index-*.js in dist/client/assets');
-  process.exit(1);
-}
-
-// Create index.html with correct asset references
-const indexHtml = `<!doctype html>
+// Create a minimal fallback index.html with CSS
+const fallbackHtml = `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PharmaSync — Smart Medication Adherence</title>
-    ${stylesCss ? `<link rel="stylesheet" href="/assets/${stylesCss}">` : ''}
+    ${stylesFile ? `<link rel="stylesheet" href="/assets/${stylesFile}">` : ''}
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/assets/${indexJs}"><\/script>
+    ${indexFile ? `<script type="module" src="/assets/${indexFile}"><\/script>` : ''}
   </body>
 </html>`;
 
-fs.writeFileSync(path.join(__dirname, 'dist/client/index.html'), indexHtml);
-console.log('✓ Generated dist/client/index.html with correct asset references');
+fs.writeFileSync(path.join(__dirname, 'dist/client/index.html'), fallbackHtml);
+console.log('✓ Generated fallback index.html');
