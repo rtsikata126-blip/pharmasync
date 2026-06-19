@@ -2,14 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/pharmacist/login")({
-  head: () => ({ meta: [{ title: "Pharmacist Login — PharmaSync" }] }),
-  component: RedirectToLogin,
+  head: () => ({ meta: [{ title: "PharmaSync — Pharmacist Portal" }] }),
+  component: RedirectToHome,
 });
 
-function RedirectToLogin() {
+function RedirectToHome() {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate({ to: "/login", replace: true, search: { role: "pharmacist" } });
+    navigate({ to: "/", replace: true });
   }, [navigate]);
   return null;
 }

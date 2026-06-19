@@ -31,7 +31,6 @@ export interface Patient {
   gender: "Male" | "Female" | "Other";
   phone: string;
   ghanaHealthId: string;
-  password: string;
   medications: Medication[];
   logs: DoseLog[];
 }
@@ -90,24 +89,22 @@ const kwameMeds: Medication[] = [
 
 const seedPatients: Patient[] = [
   {
-    id: "PAT-001",
+    id: "PMS-1001",
     fullName: "Kwame Mensah",
     age: 62,
     gender: "Male",
     phone: "+233 24 555 0142",
     ghanaHealthId: "GHA-2104-887632",
-    password: "kwame123",
     medications: kwameMeds,
     logs: generateLogs(kwameMeds),
   },
   {
-    id: "PAT-002",
+    id: "PMS-1002",
     fullName: "Akosua Boateng",
     age: 54,
     gender: "Female",
     phone: "+233 20 778 9011",
     ghanaHealthId: "GHA-2104-554120",
-    password: "akosua123",
     medications: [
       { id: "med-4", name: "Lisinopril", strength: "20 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["07:30"], startDate: "2025-06-01", endDate: "2026-06-01", foodInstructions: "No restriction", notes: "BP control.", refillDays: 9 },
       { id: "med-5", name: "Glibenclamide", strength: "5 mg", dosage: "1 Tablet", frequency: "Twice daily", reminderTimes: ["07:30", "19:30"], startDate: "2025-02-12", endDate: "2026-02-12", foodInstructions: "Before meals", notes: "Diabetes mgmt.", refillDays: 18 },
@@ -115,13 +112,12 @@ const seedPatients: Patient[] = [
     logs: [],
   },
   {
-    id: "PAT-003",
+    id: "PMS-1003",
     fullName: "Yaw Owusu",
     age: 71,
     gender: "Male",
     phone: "+233 27 311 4509",
     ghanaHealthId: "GHA-2104-220198",
-    password: "yaw123",
     medications: [
       { id: "med-6", name: "Warfarin", strength: "5 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["18:00"], startDate: "2025-01-20", endDate: "2026-01-20", foodInstructions: "With meals", notes: "Anticoagulant. Watch for bruising.", refillDays: 2 },
     ],
@@ -141,7 +137,7 @@ export const store = {
   subscribe: (fn: Listener) => { listeners.add(fn); return () => listeners.delete(fn); },
   emit: () => listeners.forEach(l => l()),
   addPatient(p: Omit<Patient, "id" | "medications" | "logs">) {
-    const id = `PAT-${String(patients.length + 1).padStart(3, "0")}`;
+    const id = `PMS-${1000 + patients.length + 1}`;
     patients = [...patients, { ...p, id, medications: [], logs: [] }];
     store.emit();
     return id;

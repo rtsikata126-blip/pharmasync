@@ -38,8 +38,8 @@ function PatientView() {
         subtitle={now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
         backTo="/"
         right={
-          <Button onClick={() => { signOut(); navigate({ to: "/login", replace: true, search: { role: "patient" } }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex">
-            <LogOut className="h-4 w-4" /> Sign out
+          <Button onClick={() => { signOut(); navigate({ to: "/patient" }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex">
+            <LogOut className="h-4 w-4" /> Back
           </Button>
         }
       />

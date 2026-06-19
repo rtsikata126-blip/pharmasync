@@ -19,7 +19,7 @@ export const Route = createFileRoute("/pharmacist/")({
 function PharmacistDashboard() {
   const patients = usePatients();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ fullName: "", age: "", gender: "Male" as "Male" | "Female" | "Other", phone: "", ghanaHealthId: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ fullName: "", age: "", gender: "Male" as "Male" | "Female" | "Other", phone: "", ghanaHealthId: "" });
 
   const totalMeds = patients.reduce((s, p) => s + p.medications.length, 0);
   const lowRefills = patients.reduce((s, p) => s + p.medications.filter(m => m.refillDays <= 7).length, 0);
@@ -27,12 +27,10 @@ function PharmacistDashboard() {
 
   const submit = () => {
     if (!form.fullName || !form.age) return toast.error("Name and age are required");
-    if (!form.password) return toast.error("Patient password is required");
-    if (form.password !== form.confirmPassword) return toast.error("Passwords must match");
-    const id = store.addPatient({ fullName: form.fullName, age: Number(form.age), gender: form.gender, phone: form.phone, ghanaHealthId: form.ghanaHealthId, password: form.password });
+    const id = store.addPatient({ fullName: form.fullName, age: Number(form.age), gender: form.gender, phone: form.phone, ghanaHealthId: form.ghanaHealthId });
     toast.success(`Patient created (${id})`);
     setOpen(false);
-    setForm({ fullName: "", age: "", gender: "Male", phone: "", ghanaHealthId: "", password: "", confirmPassword: "" });
+    setForm({ fullName: "", age: "", gender: "Male", phone: "", ghanaHealthId: "" });
   };
 
   const authorized = useRequireAuth('pharmacist');
@@ -44,7 +42,7 @@ function PharmacistDashboard() {
     <div className="min-h-screen bg-background">
       <AppHeader title="Pharmacist" subtitle="Dr. A. Owusu • Greenfield Pharmacy" backTo="/" right={
         <div className="flex items-center gap-2">
-          <Button onClick={() => { signOut(); navigate({ to: '/login', replace: true, search: { role: 'pharmacist' } }); }} variant="ghost" size="sm" className="h-11 gap-2"><LogOut className="h-4 w-4" /> Sign out</Button>
+          <Button onClick={() => { signOut(); navigate({ to: '/' }); }} variant="ghost" size="sm" className="h-11 gap-2"><LogOut className="h-4 w-4" /> Home</Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button size="lg" className="h-11 gap-2 rounded-xl px-4 font-semibold"><Plus className="h-5 w-5" /> <span className="hidden sm:inline">New Patient</span></Button>

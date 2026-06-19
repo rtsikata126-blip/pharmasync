@@ -37,7 +37,7 @@ function PharmacistPatient() {
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title={patient.fullName} subtitle={`${patient.id} • ${patient.age}y • ${patient.gender}`} backTo="/pharmacist" right={
         <div className="flex items-center gap-2">
-          <Button onClick={() => { signOut(); navigate({ to: '/login', replace: true }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex"><LogOut className="h-4 w-4" /> Sign out</Button>
+          <Button onClick={() => { signOut(); navigate({ to: '/pharmacist' }); }} variant="ghost" size="sm" className="h-9 gap-2 hidden sm:inline-flex"><LogOut className="h-4 w-4" /> Home</Button>
           <Button onClick={async () => {
             try {
               const payload = { title: 'Test Reminder', body: `This is a test reminder for ${patient.fullName}` };
