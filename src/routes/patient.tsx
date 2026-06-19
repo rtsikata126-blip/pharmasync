@@ -62,24 +62,26 @@ function PatientPortal() {
       {/* Install prompt banner */}
       {installPrompt && !dismissed && (
         <div className="mx-auto max-w-xl px-4 pt-3 sm:px-6">
-          <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-sm">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-              <Download className="h-5 w-5" />
+          <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-6 shadow-lg">
+            <div className="flex items-start gap-4">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl gradient-brand text-white shadow-md">
+                <Download className="h-7 w-7" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-extrabold text-foreground">Install PharmaSync</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Install PharmaSync on your device for faster access to your medication dashboard and reminders.
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-foreground">Install PharmaSync</p>
-              <p className="text-xs text-muted-foreground">Add to your home screen for the best experience</p>
+            <div className="mt-4 flex gap-3">
+              <Button onClick={handleInstall} size="lg" className="flex-1 h-12 rounded-xl text-base font-bold">
+                Install
+              </Button>
+              <Button onClick={() => setDismissed(true)} variant="outline" size="lg" className="flex-1 h-12 rounded-xl text-base font-semibold">
+                Maybe Later
+              </Button>
             </div>
-            <Button onClick={handleInstall} size="sm" className="h-9 shrink-0 rounded-xl px-4 font-semibold">
-              Install
-            </Button>
-            <button
-              onClick={() => setDismissed(true)}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-secondary/50 transition-colors"
-              aria-label="Dismiss"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
         </div>
       )}
