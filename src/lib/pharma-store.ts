@@ -149,10 +149,22 @@ export const store = {
       return { ...p, medications: exists ? p.medications.map(m => m.id === med.id ? med : m) : [...p.medications, med] };
     });
     store.emit();
+    try {
+      // schedule notifications for this med (if browser permission present)
+      import("./notifications").then(({ scheduleMedReminders, requestPermission }) => {
+        requestPermission().then(granted => {
+          if (!granted) return;
+          scheduleMedReminders(patientId, med, () => store.logDose(patientId, med.id, "taken"), () => store.logDose(patientId, med.id, "missed"));
+        });
+      }).catch(() => {});
+    } catch (e) {}
   },
   removeMed(patientId: string, medId: string) {
     patients = patients.map(p => p.id === patientId ? { ...p, medications: p.medications.filter(m => m.id !== medId) } : p);
     store.emit();
+    try {
+      import("./notifications").then(({ cancelMedReminders }) => { cancelMedReminders(patientId, medId); }).catch(() => {});
+    } catch (e) {}
   },
   logDose(patientId: string, medId: string, status: DoseStatus) {
     patients = patients.map(p => {

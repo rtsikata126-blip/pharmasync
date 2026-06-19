@@ -1,6 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import { AppHeader, StatCard } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, type Medication, type Frequency, type FoodInstruction } from "@/lib/pharma-store";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pill, Plus, Pencil, Trash2, QrCode, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X } from "lucide-react";
+import { Pill, Plus, Pencil, Trash2, Clock, Utensils, Calendar, Activity, CheckCircle2, XCircle, AlertCircle, Phone, IdCard, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pharmacist/patient/$id")({
@@ -26,14 +25,6 @@ function PharmacistPatient() {
   const { id } = Route.useParams();
   const patient = usePatient(id);
   const [editing, setEditing] = useState<Medication | null>(null);
-  const [showQR, setShowQR] = useState(false);
-  const [qrUrl, setQrUrl] = useState("");
-
-  useEffect(() => {
-    if (!showQR || !patient) return;
-    const url = `${window.location.origin}/patient/${patient.id}`;
-    QRCode.toDataURL(url, { width: 480, margin: 2, color: { dark: "#1e3a8a", light: "#ffffff" } }).then(setQrUrl);
-  }, [showQR, patient]);
 
   if (!patient) return null;
   const s = adherenceStats(patient);
@@ -41,7 +32,7 @@ function PharmacistPatient() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title={patient.fullName} subtitle={`${patient.id} • ${patient.age}y • ${patient.gender}`} backTo="/pharmacist" right={
-        <Button onClick={() => setShowQR(true)} variant="secondary" size="lg" className="h-11 gap-2 rounded-xl"><QrCode className="h-5 w-5" /><span className="hidden sm:inline">QR</span></Button>
+        <SharePatientButton patient={patient} />
       } />
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
@@ -106,15 +97,7 @@ function PharmacistPatient() {
 
       <MedDialog patientId={patient.id} med={editing} onClose={() => setEditing(null)} />
 
-      <Dialog open={showQR} onOpenChange={setShowQR}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Patient QR Code</DialogTitle><DialogDescription>{patient.fullName} can scan this to access their schedule.</DialogDescription></DialogHeader>
-          <div className="grid place-items-center rounded-2xl bg-white p-6">
-            {qrUrl && <img src={qrUrl} alt="Patient QR" className="h-64 w-64" />}
-          </div>
-          <p className="text-center font-mono text-xs text-muted-foreground break-all">{typeof window !== "undefined" ? `${window.location.origin}/patient/${patient.id}` : ""}</p>
-        </DialogContent>
-      </Dialog>
+      {/* Share dialog component is rendered by SharePatientButton */}
     </div>
   );
 }
@@ -200,5 +183,27 @@ function Field({ icon, label, value }: { icon: React.ReactNode; label: string; v
       <dt className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{icon}{label}</dt>
       <dd className="mt-0.5 font-semibold">{value}</dd>
     </div>
+  );
+}
+
+function SharePatientButton({ patient }: { patient: { id: string; fullName: string } }) {
+  const shareLink = typeof window !== "undefined" ? `${window.location.origin}/patient/${patient.id}` : `/patient/${patient.id}`;
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="secondary" size="lg" className="h-11 gap-2 rounded-xl"><IdCard className="h-5 w-5" /><span className="hidden sm:inline">Share</span></Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Patient Link</DialogTitle>
+          <DialogDescription>Share this read-only link with the patient (pharmacist-managed access).</DialogDescription>
+        </DialogHeader>
+        <div className="mt-4 flex items-center gap-3">
+          <input readOnly value={shareLink} className="w-full rounded-md border px-3 py-2 text-sm font-mono text-muted-foreground" />
+          <Button onClick={() => { navigator.clipboard?.writeText(shareLink); toast.success("Link copied"); }} size="sm">Copy</Button>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">Patient ID: <span className="font-mono">{patient.id}</span></p>
+      </DialogContent>
+    </Dialog>
   );
 }

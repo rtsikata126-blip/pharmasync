@@ -2,9 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppHeader, StatCard, StatusBadge } from "@/components/pharma-ui";
 import { usePatient, store, adherenceStats, todaysSchedule } from "@/lib/pharma-store";
-import { Button } from "@/components/ui/button";
 import { Pill, Bell, Clock, CheckCircle2, Activity, AlertTriangle, Utensils, History } from "lucide-react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/patient/$id")({
   head: () => ({ meta: [{ title: "My Medications — PharmaSync" }] }),
@@ -52,8 +50,7 @@ function PatientView() {
                 </div>
               </div>
               <div className="mt-5 flex gap-3">
-                <Button onClick={() => { store.logDose(patient.id, next.med.id, "taken"); toast.success(`${next.med.name} taken ✓`); }} size="lg" className="h-14 flex-1 rounded-2xl bg-white text-primary text-base font-bold hover:bg-white/90"><CheckCircle2 className="mr-2 h-5 w-5" /> Taken</Button>
-                <Button onClick={() => toast("Snoozed 15 minutes")} size="lg" variant="secondary" className="h-14 flex-1 rounded-2xl bg-white/15 text-white text-base font-bold hover:bg-white/25"><Clock className="mr-2 h-5 w-5" /> Snooze</Button>
+                <div className="h-14 flex-1 rounded-2xl bg-white/10 text-primary text-base font-bold flex items-center justify-center">Reminder sent — please follow pharmacist instructions</div>
               </div>
             </div>
           </section>
