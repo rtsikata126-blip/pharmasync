@@ -10,12 +10,20 @@
       "dest": "/assets/$1"
     },
     {
+      "src": "/sw\\.js$",
+      "dest": "/sw.js"
+    },
+    {
       "src": "/favicon\\.(ico|png|svg|webp)$",
       "dest": "/favicon.svg"
     },
     {
       "src": "/manifest\\.webmanifest$",
       "dest": "/manifest.webmanifest"
+    },
+    {
+      "src": "/icon(-\\d+)?\\.(png|svg)$",
+      "dest": "/icon$1.$2"
     },
     {
       "src": "/(.*)",

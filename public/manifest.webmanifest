@@ -1,7 +1,7 @@
 {
   "name": "PharmaSync — Smart Medication Adherence",
   "short_name": "PharmaSync",
-  "description": "Your personal medication assistant. View schedules, get reminders, and track your adherence.",
+  "description": "Manage your medications, view schedules, get reminders, and track your adherence.",
   "start_url": "/patient",
   "scope": "/",
   "display": "standalone",

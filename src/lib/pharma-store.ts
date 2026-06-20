@@ -183,10 +183,31 @@ async function syncAllToApi() {
   }
 }
 
-/** Seed initial data to the API on first load */
+/** Load all patients from the shared API, replacing the in-memory store */
+async function loadPatientsFromApi() {
+  try {
+    const res = await fetch("/api/patients");
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        patients = data as Patient[];
+        store.emit();
+      }
+    }
+  } catch (e) {
+    // API may not be available — keep seed data
+  }
+}
+
+/** Seed initial data to the API, then load any existing patients */
 if (typeof window !== "undefined") {
   // Delay seeding to let the app hydrate first
-  setTimeout(() => { syncAllToApi().catch(() => {}); }, 1000);
+  setTimeout(() => {
+    syncAllToApi().catch(() => {});
+    // Load patients from the API so newly-created patients (by the pharmacist)
+    // are visible when the patient portal loads in a different tab/session
+    loadPatientsFromApi().catch(() => {});
+  }, 1000);
 }
 
 export const store = {

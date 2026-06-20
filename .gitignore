@@ -33,8 +33,3 @@ dist-ssr
 
 .vercel
 .env*
-
-# Patient Portal (separate PWA)
-patient-portal/node_modules
-patient-portal/dist
-patient-portal/.vercel
