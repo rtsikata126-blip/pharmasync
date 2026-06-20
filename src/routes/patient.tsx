@@ -5,7 +5,7 @@ import { usePatients } from "@/lib/pharma-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Download, X } from "lucide-react";
+import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/patient")({
   head: () => ({ meta: [{ title: "Patient Portal — PharmaSync" }] }),
@@ -41,23 +41,22 @@ function PatientPortal() {
   };
 
   const selectedPatient = useMemo(
-    () => patients.find((patient) => patient.id === patientId),
+    () => patients.find((p) => p.id === patientId),
     [patients, patientId],
   );
 
-  const openPatient = (id: string) => {
-    const patient = patients.find((patient) => patient.id === id);
-    if (!patient) {
-      setError("Patient ID not found. Try PMS-1001.");
+  const openPatient = () => {
+    if (!selectedPatient) {
+      setError("Patient ID not found. Please check and try again.");
       return;
     }
     setError(null);
-    navigate({ to: `/patient/${id}` });
+    navigate({ to: `/patient/${selectedPatient.id}` });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader title="Patient Portal" subtitle="Enter your Patient ID or open a demo patient" backTo="/" />
+      <AppHeader title="Patient Portal" subtitle="Enter your Patient ID to access your medication dashboard" backTo="/" />
 
       {/* Install prompt banner */}
       {installPrompt && !dismissed && (
@@ -98,26 +97,28 @@ function PatientPortal() {
                 className="mt-2 h-12 text-lg"
               />
             </div>
+
             {selectedPatient ? (
+              <div className="rounded-3xl border border-success/20 bg-success/5 p-4">
+                <p className="font-semibold text-foreground">{selectedPatient.fullName}</p>
+                <p className="text-sm text-muted-foreground">{selectedPatient.age} years • {selectedPatient.gender}</p>
+                <p className="mt-1 text-sm text-muted-foreground">Patient ID: {selectedPatient.id}</p>
+              </div>
+            ) : patientId.length > 0 ? (
               <div className="rounded-3xl border border-border bg-secondary/10 p-4 text-sm text-muted-foreground">
-                <p className="font-semibold">{selectedPatient.fullName}</p>
-                <p>{selectedPatient.age} years • {selectedPatient.gender}</p>
-                <p className="mt-1">Patient ID: {selectedPatient.id}</p>
+                No patient found with ID <span className="font-semibold">{patientId}</span>
               </div>
             ) : null}
 
             {error ? <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
 
-            <Button onClick={() => openPatient(patientId)} className="w-full h-14 text-lg font-bold rounded-2xl">
+            <Button
+              onClick={openPatient}
+              disabled={!selectedPatient}
+              className="w-full h-14 text-lg font-bold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Open Patient Dashboard
             </Button>
-
-            <div className="pt-4 border-t border-border">
-              <p className="text-sm font-semibold text-muted-foreground mb-3">Demo Patient</p>
-              <Button onClick={() => openPatient("PMS-1001")} variant="secondary" className="w-full h-14 text-lg font-semibold rounded-2xl">
-                <User className="mr-3 h-6 w-6" /> Open Demo Patient
-              </Button>
-            </div>
           </div>
         </div>
 
