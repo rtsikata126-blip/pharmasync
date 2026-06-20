@@ -1,20 +1,17 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Pill, Stethoscope, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Pill, Stethoscope, User } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PharmaSync — Pharmacist Portal" },
-      { name: "description", content: "PharmaSync helps pharmacists manage medication schedules with smart reminders and adherence tracking." },
+      { title: "PharmaSync — Smart Medication Adherence Platform" },
+      { name: "description", content: "PharmaSync helps pharmacists and patients manage medication schedules with smart reminders and adherence tracking." },
     ],
   }),
-  component: PharmacistLanding,
+  component: Landing,
 });
 
-function PharmacistLanding() {
-  const navigate = useNavigate();
-
+function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-6 py-10">
@@ -26,10 +23,10 @@ function PharmacistLanding() {
             PharmaSync
           </h1>
           <p className="mt-3 text-xl font-semibold text-muted-foreground sm:text-2xl">
-            Pharmacist Portal
+            Smart Medication Adherence Platform
           </p>
           <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
-            Manage patients, medications, and adherence records — all in one place.
+            A platform for pharmacists and patients to manage medication schedules, track adherence, and receive smart reminders.
           </p>
         </div>
 
@@ -42,16 +39,23 @@ function PharmacistLanding() {
               <Stethoscope className="h-8 w-8" />
             </div>
             <div>
-              <p className="text-2xl font-extrabold">Dashboard</p>
+              <p className="text-2xl font-extrabold">Pharmacist Portal</p>
               <p className="mt-1 text-sm text-white/80">Manage patients, medications, and adherence</p>
             </div>
-            <ArrowRight className="ml-auto h-6 w-6 shrink-0 text-white/60 transition group-hover:translate-x-1" />
+          </Link>
+          <Link
+            to="/patient"
+            className="group flex items-center gap-5 rounded-[2rem] border-2 border-success bg-card px-8 py-6 text-left shadow-lg transition-all hover:scale-[1.02] hover:border-success/70 hover:shadow-success/10"
+          >
+            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-success/10 text-success">
+              <User className="h-8 w-8" />
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-foreground">Patient Portal</p>
+              <p className="mt-1 text-sm text-muted-foreground">View your medications and reminders</p>
+            </div>
           </Link>
         </div>
-
-        <p className="mt-10 text-center text-xs text-muted-foreground">
-          PharmaSync — Smart Medication Adherence Platform
-        </p>
       </main>
     </div>
   );
