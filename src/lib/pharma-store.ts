@@ -24,6 +24,16 @@ export interface DoseLog {
   takenAt?: string;
 }
 
+export interface Appointment {
+  id: string;
+  date: string;
+  time: string;
+  type: string;
+  doctor: string;
+  location: string;
+  notes: string;
+}
+
 export interface Patient {
   id: string;
   fullName: string;
@@ -31,7 +41,10 @@ export interface Patient {
   gender: "Male" | "Female" | "Other";
   phone: string;
   ghanaHealthId: string;
+  medicalConditions: string[];
+  allergies: string[];
   medications: Medication[];
+  appointments: Appointment[];
   logs: DoseLog[];
 }
 
@@ -87,6 +100,11 @@ const kwameMeds: Medication[] = [
   },
 ];
 
+const kwameAppointments: Appointment[] = [
+  { id: "apt-1", date: "2026-06-25", time: "10:00", type: "Follow-up", doctor: "Dr. Asante", location: "Korle Bu Polyclinic", notes: "Blood pressure check" },
+  { id: "apt-2", date: "2026-07-15", time: "14:30", type: "Lab Work", doctor: "Dr. Asante", location: "Korle Bu Polyclinic", notes: "HbA1c and lipid panel" },
+];
+
 const seedPatients: Patient[] = [
   {
     id: "PMS-1001",
@@ -95,7 +113,10 @@ const seedPatients: Patient[] = [
     gender: "Male",
     phone: "+233 24 555 0142",
     ghanaHealthId: "GHA-2104-887632",
+    medicalConditions: ["Hypertension", "Type 2 Diabetes", "Hyperlipidemia"],
+    allergies: ["Penicillin", "Sulfa drugs"],
     medications: kwameMeds,
+    appointments: kwameAppointments,
     logs: generateLogs(kwameMeds),
   },
   {
@@ -105,9 +126,14 @@ const seedPatients: Patient[] = [
     gender: "Female",
     phone: "+233 20 778 9011",
     ghanaHealthId: "GHA-2104-554120",
+    medicalConditions: ["Hypertension", "Type 2 Diabetes"],
+    allergies: ["Aspirin"],
     medications: [
       { id: "med-4", name: "Lisinopril", strength: "20 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["07:30"], startDate: "2025-06-01", endDate: "2026-06-01", foodInstructions: "No restriction", notes: "BP control.", refillDays: 9 },
       { id: "med-5", name: "Glibenclamide", strength: "5 mg", dosage: "1 Tablet", frequency: "Twice daily", reminderTimes: ["07:30", "19:30"], startDate: "2025-02-12", endDate: "2026-02-12", foodInstructions: "Before meals", notes: "Diabetes mgmt.", refillDays: 18 },
+    ],
+    appointments: [
+      { id: "apt-3", date: "2026-07-01", time: "09:00", type: "Check-up", doctor: "Dr. Mensah", location: "Ridge Hospital", notes: "Routine diabetes review" },
     ],
     logs: [],
   },
@@ -118,8 +144,14 @@ const seedPatients: Patient[] = [
     gender: "Male",
     phone: "+233 27 311 4509",
     ghanaHealthId: "GHA-2104-220198",
+    medicalConditions: ["Atrial Fibrillation", "Osteoarthritis"],
+    allergies: ["Codeine", "Ibuprofen"],
     medications: [
       { id: "med-6", name: "Warfarin", strength: "5 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["18:00"], startDate: "2025-01-20", endDate: "2026-01-20", foodInstructions: "With meals", notes: "Anticoagulant. Watch for bruising.", refillDays: 2 },
+    ],
+    appointments: [
+      { id: "apt-4", date: "2026-06-28", time: "11:00", type: "INR Test", doctor: "Dr. Opoku", location: "Komfo Anokye Hospital", notes: "Warfarin monitoring" },
+      { id: "apt-5", date: "2026-08-10", time: "10:30", type: "Cardiology", doctor: "Dr. Opoku", location: "Komfo Anokye Hospital", notes: "Heart rhythm review" },
     ],
     logs: [],
   },
@@ -136,9 +168,9 @@ export const store = {
   get: (id: string) => patients.find(p => p.id === id),
   subscribe: (fn: Listener) => { listeners.add(fn); return () => listeners.delete(fn); },
   emit: () => listeners.forEach(l => l()),
-  addPatient(p: Omit<Patient, "id" | "medications" | "logs">) {
+  addPatient(p: Omit<Patient, "id" | "medications" | "logs" | "appointments" | "medicalConditions" | "allergies">) {
     const id = `PMS-${1000 + patients.length + 1}`;
-    patients = [...patients, { ...p, id, medications: [], logs: [] }];
+    patients = [...patients, { ...p, id, medications: [], appointments: [], medicalConditions: [], allergies: [], logs: [] }];
     store.emit();
     return id;
   },
