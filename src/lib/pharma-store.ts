@@ -163,6 +163,32 @@ type Listener = () => void;
 const listeners = new Set<Listener>();
 let patients: Patient[] = seedPatients;
 
+/** Sync a single patient record to the shared API */
+async function syncPatientToApi(patient: Patient) {
+  try {
+    await fetch("/api/patients", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(patient),
+    });
+  } catch (e) {
+    // API may not be available in dev — silently continue
+  }
+}
+
+/** Sync all patients to the shared API */
+async function syncAllToApi() {
+  for (const p of patients) {
+    await syncPatientToApi(p);
+  }
+}
+
+/** Seed initial data to the API on first load */
+if (typeof window !== "undefined") {
+  // Delay seeding to let the app hydrate first
+  setTimeout(() => { syncAllToApi().catch(() => {}); }, 1000);
+}
+
 export const store = {
   getAll: () => patients,
   get: (id: string) => patients.find(p => p.id === id),
@@ -170,19 +196,23 @@ export const store = {
   emit: () => listeners.forEach(l => l()),
   addPatient(p: Omit<Patient, "id" | "medications" | "logs" | "appointments" | "medicalConditions" | "allergies">) {
     const id = `PMS-${1000 + patients.length + 1}`;
-    patients = [...patients, { ...p, id, medications: [], appointments: [], medicalConditions: [], allergies: [], logs: [] }];
+    const newPatient = { ...p, id, medications: [], appointments: [], medicalConditions: [], allergies: [], logs: [] } as Patient;
+    patients = [...patients, newPatient];
     store.emit();
+    syncPatientToApi(newPatient);
     return id;
   },
   upsertMed(patientId: string, med: Medication) {
+    let updatedPatient: Patient | undefined;
     patients = patients.map(p => {
       if (p.id !== patientId) return p;
       const exists = p.medications.some(m => m.id === med.id);
-      return { ...p, medications: exists ? p.medications.map(m => m.id === med.id ? med : m) : [...p.medications, med] };
+      updatedPatient = { ...p, medications: exists ? p.medications.map(m => m.id === med.id ? med : m) : [...p.medications, med] };
+      return updatedPatient;
     });
     store.emit();
+    if (updatedPatient) syncPatientToApi(updatedPatient);
     try {
-      // schedule notifications for this med (if browser permission present)
       import("./notifications").then(({ scheduleMedReminders, requestPermission }) => {
         requestPermission().then(granted => {
           if (!granted) return;
@@ -192,24 +222,40 @@ export const store = {
     } catch (e) {}
   },
   updatePatient(id: string, data: Partial<Omit<Patient, "id" | "medications" | "logs">>) {
-    patients = patients.map(p => p.id === id ? { ...p, ...data } : p);
+    let updatedPatient: Patient | undefined;
+    patients = patients.map(p => {
+      if (p.id !== id) return p;
+      updatedPatient = { ...p, ...data } as Patient;
+      return updatedPatient;
+    });
     store.emit();
+    if (updatedPatient) syncPatientToApi(updatedPatient);
   },
   deletePatient(id: string) {
     patients = patients.filter(p => p.id !== id);
     store.emit();
+    try {
+      fetch(`/api/patients/${id}`, { method: "DELETE" }).catch(() => {});
+    } catch (e) {}
   },
   removeMed(patientId: string, medId: string) {
-    patients = patients.map(p => p.id === patientId ? { ...p, medications: p.medications.filter(m => m.id !== medId) } : p);
+    let updatedPatient: Patient | undefined;
+    patients = patients.map(p => {
+      if (p.id !== patientId) return p;
+      updatedPatient = { ...p, medications: p.medications.filter(m => m.id !== medId) };
+      return updatedPatient;
+    });
     store.emit();
+    if (updatedPatient) syncPatientToApi(updatedPatient);
     try {
       import("./notifications").then(({ cancelMedReminders }) => { cancelMedReminders(patientId, medId); }).catch(() => {});
     } catch (e) {}
   },
   logDose(patientId: string, medId: string, status: DoseStatus) {
+    let updatedPatient: Patient | undefined;
     patients = patients.map(p => {
       if (p.id !== patientId) return p;
-      return {
+      updatedPatient = {
         ...p,
         logs: [...p.logs, {
           id: `log-${Date.now()}`, medicationId: medId,
@@ -217,8 +263,10 @@ export const store = {
           takenAt: status === "taken" ? new Date().toISOString() : undefined,
         }],
       };
+      return updatedPatient;
     });
     store.emit();
+    if (updatedPatient) syncPatientToApi(updatedPatient);
   },
 };
 
