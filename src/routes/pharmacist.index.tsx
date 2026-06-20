@@ -65,7 +65,7 @@ function PharmacistDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader title="Pharmacist Portal" subtitle="Dr. A. Owusu • Greenfield Pharmacy" backTo="/" right={
+      <AppHeader title="Pharmacist Portal" subtitle="Dr Tsiakata Raphael • Greenfield Pharmacy" backTo="/" right={
         <div className="flex items-center gap-2">
           <Button onClick={() => navigate({ to: "/" })} variant="ghost" size="sm" className="h-11 gap-2"><LogOut className="h-4 w-4" /> Home</Button>
           <Dialog open={open} onOpenChange={setOpen}>
