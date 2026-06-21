@@ -274,6 +274,13 @@ type Listener = () => void;
 const listeners = new Set<Listener>();
 let patients: Patient[] = seedPatients;
 
+/**
+ * Tracks local mutations so async loadPatientsFromApi() doesn't overwrite
+ * changes the user made while the API request was in-flight.
+ */
+let localMutationCount = 0;
+let apiLoadId = 0;
+
 /** Sync a single patient record to the shared API */
 async function syncPatientToApi(patient: Patient) {
   try {
@@ -313,11 +320,22 @@ function normalizePatient(p: Partial<Patient>): Patient {
 
 /** Load all patients from the shared API, replacing the in-memory store */
 async function loadPatientsFromApi() {
+  // Capture the mutation count at the moment the fetch starts
+  const snapshotCount = localMutationCount;
+  const loadId = ++apiLoadId;
+
   try {
     const res = await fetch("/api/patients");
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      // Only apply if no local mutation happened while we were loading
+      // AND this is still the most recent load request
+      if (
+        Array.isArray(data) &&
+        data.length > 0 &&
+        loadId === apiLoadId &&
+        localMutationCount === snapshotCount
+      ) {
         // Normalize each patient to ensure all required fields exist
         patients = data.map(normalizePatient);
         store.emit();
@@ -357,6 +375,7 @@ export const store = {
       "id" | "medications" | "logs" | "appointments" | "medicalConditions" | "allergies"
     >,
   ) {
+    localMutationCount++;
     const id = `PMS-${1000 + patients.length + 1}`;
     const newPatient = {
       ...p,
@@ -373,6 +392,7 @@ export const store = {
     return id;
   },
   upsertMed(patientId: string, med: Medication) {
+    localMutationCount++;
     let updatedPatient: Patient | undefined;
     patients = patients.map((p) => {
       if (p.id !== patientId) return p;
@@ -404,6 +424,7 @@ export const store = {
     } catch (e) {}
   },
   updatePatient(id: string, data: Partial<Omit<Patient, "id" | "medications" | "logs">>) {
+    localMutationCount++;
     let updatedPatient: Patient | undefined;
     patients = patients.map((p) => {
       if (p.id !== id) return p;
@@ -414,6 +435,7 @@ export const store = {
     if (updatedPatient) syncPatientToApi(updatedPatient);
   },
   deletePatient(id: string) {
+    localMutationCount++;
     patients = patients.filter((p) => p.id !== id);
     store.emit();
     try {
@@ -421,6 +443,7 @@ export const store = {
     } catch (e) {}
   },
   removeMed(patientId: string, medId: string) {
+    localMutationCount++;
     let updatedPatient: Patient | undefined;
     patients = patients.map((p) => {
       if (p.id !== patientId) return p;
@@ -438,6 +461,7 @@ export const store = {
     } catch (e) {}
   },
   logDose(patientId: string, medId: string, status: DoseStatus) {
+    localMutationCount++;
     let updatedPatient: Patient | undefined;
     patients = patients.map((p) => {
       if (p.id !== patientId) return p;

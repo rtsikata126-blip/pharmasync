@@ -1,1 +1,1008 @@
-{}
+{
+  "PMS-1001": {
+    "id": "PMS-1001",
+    "fullName": "Kwame Mensah",
+    "age": 62,
+    "gender": "Male",
+    "phone": "+233 24 555 0142",
+    "ghanaHealthId": "GHA-2104-887632",
+    "medicalConditions": [
+      "Hypertension",
+      "Type 2 Diabetes",
+      "Hyperlipidemia"
+    ],
+    "allergies": [
+      "Penicillin",
+      "Sulfa drugs"
+    ],
+    "medications": [
+      {
+        "id": "med-1",
+        "name": "Amlodipine",
+        "strength": "10 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Once daily",
+        "reminderTimes": [
+          "08:00"
+        ],
+        "startDate": "2025-05-01",
+        "endDate": "2026-05-01",
+        "foodInstructions": "After meals",
+        "notes": "For blood pressure control. Monitor for ankle swelling.",
+        "refillDays": 6
+      },
+      {
+        "id": "med-2",
+        "name": "Metformin",
+        "strength": "500 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Twice daily",
+        "reminderTimes": [
+          "08:00",
+          "20:00"
+        ],
+        "startDate": "2025-03-15",
+        "endDate": "2026-03-15",
+        "foodInstructions": "With meals",
+        "notes": "For type 2 diabetes. Take with food to reduce nausea.",
+        "refillDays": 12
+      },
+      {
+        "id": "med-3",
+        "name": "Atorvastatin",
+        "strength": "20 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Once daily",
+        "reminderTimes": [
+          "22:00"
+        ],
+        "startDate": "2025-04-10",
+        "endDate": "2026-04-10",
+        "foodInstructions": "No restriction",
+        "notes": "Cholesterol management. Avoid grapefruit juice.",
+        "refillDays": 3
+      }
+    ],
+    "appointments": [
+      {
+        "id": "apt-1",
+        "date": "2026-06-25",
+        "time": "10:00",
+        "type": "Follow-up",
+        "doctor": "Dr. Asante",
+        "location": "Korle Bu Polyclinic",
+        "notes": "Blood pressure check"
+      },
+      {
+        "id": "apt-2",
+        "date": "2026-07-15",
+        "time": "14:30",
+        "type": "Lab Work",
+        "doctor": "Dr. Asante",
+        "location": "Korle Bu Polyclinic",
+        "notes": "HbA1c and lipid panel"
+      }
+    ],
+    "logs": [
+      {
+        "id": "log-0",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-07T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T08:05:00.000Z"
+      },
+      {
+        "id": "log-1",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-07T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T08:05:00.000Z"
+      },
+      {
+        "id": "log-2",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-07T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T20:05:00.000Z"
+      },
+      {
+        "id": "log-3",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-07T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T22:05:00.000Z"
+      },
+      {
+        "id": "log-4",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-08T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T08:05:00.000Z"
+      },
+      {
+        "id": "log-5",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-08T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T08:05:00.000Z"
+      },
+      {
+        "id": "log-6",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-08T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T20:05:00.000Z"
+      },
+      {
+        "id": "log-7",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-08T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T22:05:00.000Z"
+      },
+      {
+        "id": "log-8",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-09T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T08:05:00.000Z"
+      },
+      {
+        "id": "log-9",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-09T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T08:05:00.000Z"
+      },
+      {
+        "id": "log-10",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-09T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T20:05:00.000Z"
+      },
+      {
+        "id": "log-11",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-09T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T22:05:00.000Z"
+      },
+      {
+        "id": "log-12",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-10T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T08:05:00.000Z"
+      },
+      {
+        "id": "log-13",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-10T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T08:05:00.000Z"
+      },
+      {
+        "id": "log-14",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-10T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T20:05:00.000Z"
+      },
+      {
+        "id": "log-15",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-10T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T22:05:00.000Z"
+      },
+      {
+        "id": "log-16",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-11T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T08:05:00.000Z"
+      },
+      {
+        "id": "log-17",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-11T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T08:05:00.000Z"
+      },
+      {
+        "id": "log-18",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-11T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T20:05:00.000Z"
+      },
+      {
+        "id": "log-19",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-11T22:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-20",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-12T08:00:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-12T08:45:00.000Z"
+      },
+      {
+        "id": "log-21",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-12T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-12T08:05:00.000Z"
+      },
+      {
+        "id": "log-22",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-12T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-12T20:05:00.000Z"
+      },
+      {
+        "id": "log-23",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-12T22:00:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-12T22:45:00.000Z"
+      },
+      {
+        "id": "log-24",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-13T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T08:05:00.000Z"
+      },
+      {
+        "id": "log-25",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-13T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T08:05:00.000Z"
+      },
+      {
+        "id": "log-26",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-13T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T20:05:00.000Z"
+      },
+      {
+        "id": "log-27",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-13T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T22:05:00.000Z"
+      },
+      {
+        "id": "log-28",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-14T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T08:05:00.000Z"
+      },
+      {
+        "id": "log-29",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-14T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T08:05:00.000Z"
+      },
+      {
+        "id": "log-30",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-14T20:00:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-14T20:45:00.000Z"
+      },
+      {
+        "id": "log-31",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-14T22:00:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-14T22:45:00.000Z"
+      },
+      {
+        "id": "log-32",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-15T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T08:05:00.000Z"
+      },
+      {
+        "id": "log-33",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-15T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T08:05:00.000Z"
+      },
+      {
+        "id": "log-34",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-15T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T20:05:00.000Z"
+      },
+      {
+        "id": "log-35",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-15T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T22:05:00.000Z"
+      },
+      {
+        "id": "log-36",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-16T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T08:05:00.000Z"
+      },
+      {
+        "id": "log-37",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-16T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T08:05:00.000Z"
+      },
+      {
+        "id": "log-38",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-16T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T20:05:00.000Z"
+      },
+      {
+        "id": "log-39",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-16T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T22:05:00.000Z"
+      },
+      {
+        "id": "log-40",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-17T08:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-41",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-17T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-17T08:05:00.000Z"
+      },
+      {
+        "id": "log-42",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-17T20:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-43",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-17T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-17T22:05:00.000Z"
+      },
+      {
+        "id": "log-44",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-18T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T08:05:00.000Z"
+      },
+      {
+        "id": "log-45",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-18T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T08:05:00.000Z"
+      },
+      {
+        "id": "log-46",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-18T20:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-47",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-18T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T22:05:00.000Z"
+      },
+      {
+        "id": "log-48",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-19T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T08:05:00.000Z"
+      },
+      {
+        "id": "log-49",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-19T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T08:05:00.000Z"
+      },
+      {
+        "id": "log-50",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-19T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T20:05:00.000Z"
+      },
+      {
+        "id": "log-51",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-19T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T22:05:00.000Z"
+      },
+      {
+        "id": "log-52",
+        "medicationId": "med-1",
+        "scheduledTime": "2026-06-20T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T08:05:00.000Z"
+      },
+      {
+        "id": "log-53",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-20T08:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T08:05:00.000Z"
+      },
+      {
+        "id": "log-54",
+        "medicationId": "med-2",
+        "scheduledTime": "2026-06-20T20:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T20:05:00.000Z"
+      },
+      {
+        "id": "log-55",
+        "medicationId": "med-3",
+        "scheduledTime": "2026-06-20T22:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T22:05:00.000Z"
+      }
+    ]
+  },
+  "PMS-1002": {
+    "id": "PMS-1002",
+    "fullName": "Akosua Boateng",
+    "age": 54,
+    "gender": "Female",
+    "phone": "+233 20 778 9011",
+    "ghanaHealthId": "GHA-2104-554120",
+    "medicalConditions": [
+      "Hypertension",
+      "Type 2 Diabetes"
+    ],
+    "allergies": [
+      "Aspirin"
+    ],
+    "medications": [
+      {
+        "id": "med-4",
+        "name": "Lisinopril",
+        "strength": "20 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Once daily",
+        "reminderTimes": [
+          "07:30"
+        ],
+        "startDate": "2025-06-01",
+        "endDate": "2026-06-01",
+        "foodInstructions": "No restriction",
+        "notes": "BP control.",
+        "refillDays": 9
+      },
+      {
+        "id": "med-5",
+        "name": "Glibenclamide",
+        "strength": "5 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Twice daily",
+        "reminderTimes": [
+          "07:30",
+          "19:30"
+        ],
+        "startDate": "2025-02-12",
+        "endDate": "2026-02-12",
+        "foodInstructions": "Before meals",
+        "notes": "Diabetes mgmt.",
+        "refillDays": 18
+      }
+    ],
+    "appointments": [
+      {
+        "id": "apt-3",
+        "date": "2026-07-01",
+        "time": "09:00",
+        "type": "Check-up",
+        "doctor": "Dr. Mensah",
+        "location": "Ridge Hospital",
+        "notes": "Routine diabetes review"
+      }
+    ],
+    "logs": [
+      {
+        "id": "log-0",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-07T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T07:35:00.000Z"
+      },
+      {
+        "id": "log-1",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-07T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T07:35:00.000Z"
+      },
+      {
+        "id": "log-2",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-07T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T19:35:00.000Z"
+      },
+      {
+        "id": "log-3",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-08T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T07:35:00.000Z"
+      },
+      {
+        "id": "log-4",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-08T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T07:35:00.000Z"
+      },
+      {
+        "id": "log-5",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-08T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-08T19:35:00.000Z"
+      },
+      {
+        "id": "log-6",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-09T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T07:35:00.000Z"
+      },
+      {
+        "id": "log-7",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-09T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T07:35:00.000Z"
+      },
+      {
+        "id": "log-8",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-09T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-09T19:35:00.000Z"
+      },
+      {
+        "id": "log-9",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-10T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T07:35:00.000Z"
+      },
+      {
+        "id": "log-10",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-10T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T07:35:00.000Z"
+      },
+      {
+        "id": "log-11",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-10T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T19:35:00.000Z"
+      },
+      {
+        "id": "log-12",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-11T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T07:35:00.000Z"
+      },
+      {
+        "id": "log-13",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-11T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T07:35:00.000Z"
+      },
+      {
+        "id": "log-14",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-11T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T19:35:00.000Z"
+      },
+      {
+        "id": "log-15",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-12T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-12T07:35:00.000Z"
+      },
+      {
+        "id": "log-16",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-12T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-12T07:35:00.000Z"
+      },
+      {
+        "id": "log-17",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-12T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-12T19:35:00.000Z"
+      },
+      {
+        "id": "log-18",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-13T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T07:35:00.000Z"
+      },
+      {
+        "id": "log-19",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-13T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T07:35:00.000Z"
+      },
+      {
+        "id": "log-20",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-13T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T19:35:00.000Z"
+      },
+      {
+        "id": "log-21",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-14T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T07:35:00.000Z"
+      },
+      {
+        "id": "log-22",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-14T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T07:35:00.000Z"
+      },
+      {
+        "id": "log-23",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-14T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T19:35:00.000Z"
+      },
+      {
+        "id": "log-24",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-15T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T07:35:00.000Z"
+      },
+      {
+        "id": "log-25",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-15T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T07:35:00.000Z"
+      },
+      {
+        "id": "log-26",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-15T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T19:35:00.000Z"
+      },
+      {
+        "id": "log-27",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-16T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T07:35:00.000Z"
+      },
+      {
+        "id": "log-28",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-16T07:30:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-16T08:15:00.000Z"
+      },
+      {
+        "id": "log-29",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-16T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T19:35:00.000Z"
+      },
+      {
+        "id": "log-30",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-17T07:30:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-17T08:15:00.000Z"
+      },
+      {
+        "id": "log-31",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-17T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-17T07:35:00.000Z"
+      },
+      {
+        "id": "log-32",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-17T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-17T19:35:00.000Z"
+      },
+      {
+        "id": "log-33",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-18T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T07:35:00.000Z"
+      },
+      {
+        "id": "log-34",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-18T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T07:35:00.000Z"
+      },
+      {
+        "id": "log-35",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-18T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T19:35:00.000Z"
+      },
+      {
+        "id": "log-36",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-19T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T07:35:00.000Z"
+      },
+      {
+        "id": "log-37",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-19T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T07:35:00.000Z"
+      },
+      {
+        "id": "log-38",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-19T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T19:35:00.000Z"
+      },
+      {
+        "id": "log-39",
+        "medicationId": "med-4",
+        "scheduledTime": "2026-06-20T07:30:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-40",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-20T07:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T07:35:00.000Z"
+      },
+      {
+        "id": "log-41",
+        "medicationId": "med-5",
+        "scheduledTime": "2026-06-20T19:30:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T19:35:00.000Z"
+      }
+    ]
+  },
+  "PMS-1003": {
+    "id": "PMS-1003",
+    "fullName": "Yaw Owusu",
+    "age": 71,
+    "gender": "Male",
+    "phone": "+233 27 311 4509",
+    "ghanaHealthId": "GHA-2104-220198",
+    "medicalConditions": [
+      "Atrial Fibrillation",
+      "Osteoarthritis"
+    ],
+    "allergies": [
+      "Codeine",
+      "Ibuprofen"
+    ],
+    "medications": [
+      {
+        "id": "med-6",
+        "name": "Warfarin",
+        "strength": "5 mg",
+        "dosage": "1 Tablet",
+        "frequency": "Once daily",
+        "reminderTimes": [
+          "18:00"
+        ],
+        "startDate": "2025-01-20",
+        "endDate": "2026-01-20",
+        "foodInstructions": "With meals",
+        "notes": "Anticoagulant. Watch for bruising.",
+        "refillDays": 2
+      }
+    ],
+    "appointments": [
+      {
+        "id": "apt-4",
+        "date": "2026-06-28",
+        "time": "11:00",
+        "type": "INR Test",
+        "doctor": "Dr. Opoku",
+        "location": "Komfo Anokye Hospital",
+        "notes": "Warfarin monitoring"
+      },
+      {
+        "id": "apt-5",
+        "date": "2026-08-10",
+        "time": "10:30",
+        "type": "Cardiology",
+        "doctor": "Dr. Opoku",
+        "location": "Komfo Anokye Hospital",
+        "notes": "Heart rhythm review"
+      }
+    ],
+    "logs": [
+      {
+        "id": "log-0",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-07T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-07T18:05:00.000Z"
+      },
+      {
+        "id": "log-1",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-08T18:00:00.000Z",
+        "status": "late",
+        "takenAt": "2026-06-08T18:45:00.000Z"
+      },
+      {
+        "id": "log-2",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-09T18:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-3",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-10T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-10T18:05:00.000Z"
+      },
+      {
+        "id": "log-4",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-11T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-11T18:05:00.000Z"
+      },
+      {
+        "id": "log-5",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-12T18:00:00.000Z",
+        "status": "missed"
+      },
+      {
+        "id": "log-6",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-13T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-13T18:05:00.000Z"
+      },
+      {
+        "id": "log-7",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-14T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-14T18:05:00.000Z"
+      },
+      {
+        "id": "log-8",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-15T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-15T18:05:00.000Z"
+      },
+      {
+        "id": "log-9",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-16T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-16T18:05:00.000Z"
+      },
+      {
+        "id": "log-10",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-17T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-17T18:05:00.000Z"
+      },
+      {
+        "id": "log-11",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-18T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-18T18:05:00.000Z"
+      },
+      {
+        "id": "log-12",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-19T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-19T18:05:00.000Z"
+      },
+      {
+        "id": "log-13",
+        "medicationId": "med-6",
+        "scheduledTime": "2026-06-20T18:00:00.000Z",
+        "status": "taken",
+        "takenAt": "2026-06-20T18:05:00.000Z"
+      }
+    ]
+  },
+  "PMS-1004": {
+    "fullName": "Vanishing Test",
+    "age": 40,
+    "gender": "Female",
+    "phone": "+233 55 000 0000",
+    "ghanaHealthId": "",
+    "id": "PMS-1004",
+    "medications": [],
+    "appointments": [],
+    "medicalConditions": [],
+    "allergies": [],
+    "logs": []
+  },
+  "PMS-1005": {
+    "fullName": "Second Test",
+    "age": 28,
+    "gender": "Male",
+    "phone": "",
+    "ghanaHealthId": "",
+    "id": "PMS-1005",
+    "medications": [],
+    "appointments": [],
+    "medicalConditions": [],
+    "allergies": [],
+    "logs": []
+  }
+}
