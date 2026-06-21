@@ -1,5 +1,15 @@
-export type Frequency = "Once daily" | "Twice daily" | "Three times daily" | "Four times daily" | "As needed";
-export type FoodInstruction = "Before meals" | "With meals" | "After meals" | "Empty stomach" | "No restriction";
+export type Frequency =
+  | "Once daily"
+  | "Twice daily"
+  | "Three times daily"
+  | "Four times daily"
+  | "As needed";
+export type FoodInstruction =
+  | "Before meals"
+  | "With meals"
+  | "After meals"
+  | "Empty stomach"
+  | "No restriction";
 export type DoseStatus = "taken" | "missed" | "late" | "pending";
 
 export interface Medication {
@@ -50,7 +60,11 @@ export interface Patient {
 
 const today = new Date();
 const iso = (d: Date) => d.toISOString();
-const daysAgo = (n: number) => { const d = new Date(today); d.setDate(d.getDate() - n); return d; };
+const daysAgo = (n: number) => {
+  const d = new Date(today);
+  d.setDate(d.getDate() - n);
+  return d;
+};
 
 function generateLogs(meds: Medication[]): DoseLog[] {
   const logs: DoseLog[] = [];
@@ -68,7 +82,10 @@ function generateLogs(meds: Medication[]): DoseLog[] {
           medicationId: m.id,
           scheduledTime: iso(d),
           status,
-          takenAt: status !== "missed" ? iso(new Date(d.getTime() + (status === "late" ? 45 : 5) * 60000)) : undefined,
+          takenAt:
+            status !== "missed"
+              ? iso(new Date(d.getTime() + (status === "late" ? 45 : 5) * 60000))
+              : undefined,
         });
       }
     }
@@ -78,31 +95,65 @@ function generateLogs(meds: Medication[]): DoseLog[] {
 
 const kwameMeds: Medication[] = [
   {
-    id: "med-1", name: "Amlodipine", strength: "10 mg", dosage: "1 Tablet",
-    frequency: "Once daily", reminderTimes: ["08:00"],
-    startDate: "2025-05-01", endDate: "2026-05-01",
-    foodInstructions: "After meals", notes: "For blood pressure control. Monitor for ankle swelling.",
+    id: "med-1",
+    name: "Amlodipine",
+    strength: "10 mg",
+    dosage: "1 Tablet",
+    frequency: "Once daily",
+    reminderTimes: ["08:00"],
+    startDate: "2025-05-01",
+    endDate: "2026-05-01",
+    foodInstructions: "After meals",
+    notes: "For blood pressure control. Monitor for ankle swelling.",
     refillDays: 6,
   },
   {
-    id: "med-2", name: "Metformin", strength: "500 mg", dosage: "1 Tablet",
-    frequency: "Twice daily", reminderTimes: ["08:00", "20:00"],
-    startDate: "2025-03-15", endDate: "2026-03-15",
-    foodInstructions: "With meals", notes: "For type 2 diabetes. Take with food to reduce nausea.",
+    id: "med-2",
+    name: "Metformin",
+    strength: "500 mg",
+    dosage: "1 Tablet",
+    frequency: "Twice daily",
+    reminderTimes: ["08:00", "20:00"],
+    startDate: "2025-03-15",
+    endDate: "2026-03-15",
+    foodInstructions: "With meals",
+    notes: "For type 2 diabetes. Take with food to reduce nausea.",
     refillDays: 12,
   },
   {
-    id: "med-3", name: "Atorvastatin", strength: "20 mg", dosage: "1 Tablet",
-    frequency: "Once daily", reminderTimes: ["22:00"],
-    startDate: "2025-04-10", endDate: "2026-04-10",
-    foodInstructions: "No restriction", notes: "Cholesterol management. Avoid grapefruit juice.",
+    id: "med-3",
+    name: "Atorvastatin",
+    strength: "20 mg",
+    dosage: "1 Tablet",
+    frequency: "Once daily",
+    reminderTimes: ["22:00"],
+    startDate: "2025-04-10",
+    endDate: "2026-04-10",
+    foodInstructions: "No restriction",
+    notes: "Cholesterol management. Avoid grapefruit juice.",
     refillDays: 3,
   },
 ];
 
 const kwameAppointments: Appointment[] = [
-  { id: "apt-1", date: "2026-06-25", time: "10:00", type: "Follow-up", doctor: "Dr. Asante", location: "Korle Bu Polyclinic", notes: "Blood pressure check" },
-  { id: "apt-2", date: "2026-07-15", time: "14:30", type: "Lab Work", doctor: "Dr. Asante", location: "Korle Bu Polyclinic", notes: "HbA1c and lipid panel" },
+  {
+    id: "apt-1",
+    date: "2026-06-25",
+    time: "10:00",
+    type: "Follow-up",
+    doctor: "Dr. Asante",
+    location: "Korle Bu Polyclinic",
+    notes: "Blood pressure check",
+  },
+  {
+    id: "apt-2",
+    date: "2026-07-15",
+    time: "14:30",
+    type: "Lab Work",
+    doctor: "Dr. Asante",
+    location: "Korle Bu Polyclinic",
+    notes: "HbA1c and lipid panel",
+  },
 ];
 
 const seedPatients: Patient[] = [
@@ -129,11 +180,43 @@ const seedPatients: Patient[] = [
     medicalConditions: ["Hypertension", "Type 2 Diabetes"],
     allergies: ["Aspirin"],
     medications: [
-      { id: "med-4", name: "Lisinopril", strength: "20 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["07:30"], startDate: "2025-06-01", endDate: "2026-06-01", foodInstructions: "No restriction", notes: "BP control.", refillDays: 9 },
-      { id: "med-5", name: "Glibenclamide", strength: "5 mg", dosage: "1 Tablet", frequency: "Twice daily", reminderTimes: ["07:30", "19:30"], startDate: "2025-02-12", endDate: "2026-02-12", foodInstructions: "Before meals", notes: "Diabetes mgmt.", refillDays: 18 },
+      {
+        id: "med-4",
+        name: "Lisinopril",
+        strength: "20 mg",
+        dosage: "1 Tablet",
+        frequency: "Once daily",
+        reminderTimes: ["07:30"],
+        startDate: "2025-06-01",
+        endDate: "2026-06-01",
+        foodInstructions: "No restriction",
+        notes: "BP control.",
+        refillDays: 9,
+      },
+      {
+        id: "med-5",
+        name: "Glibenclamide",
+        strength: "5 mg",
+        dosage: "1 Tablet",
+        frequency: "Twice daily",
+        reminderTimes: ["07:30", "19:30"],
+        startDate: "2025-02-12",
+        endDate: "2026-02-12",
+        foodInstructions: "Before meals",
+        notes: "Diabetes mgmt.",
+        refillDays: 18,
+      },
     ],
     appointments: [
-      { id: "apt-3", date: "2026-07-01", time: "09:00", type: "Check-up", doctor: "Dr. Mensah", location: "Ridge Hospital", notes: "Routine diabetes review" },
+      {
+        id: "apt-3",
+        date: "2026-07-01",
+        time: "09:00",
+        type: "Check-up",
+        doctor: "Dr. Mensah",
+        location: "Ridge Hospital",
+        notes: "Routine diabetes review",
+      },
     ],
     logs: [],
   },
@@ -147,11 +230,39 @@ const seedPatients: Patient[] = [
     medicalConditions: ["Atrial Fibrillation", "Osteoarthritis"],
     allergies: ["Codeine", "Ibuprofen"],
     medications: [
-      { id: "med-6", name: "Warfarin", strength: "5 mg", dosage: "1 Tablet", frequency: "Once daily", reminderTimes: ["18:00"], startDate: "2025-01-20", endDate: "2026-01-20", foodInstructions: "With meals", notes: "Anticoagulant. Watch for bruising.", refillDays: 2 },
+      {
+        id: "med-6",
+        name: "Warfarin",
+        strength: "5 mg",
+        dosage: "1 Tablet",
+        frequency: "Once daily",
+        reminderTimes: ["18:00"],
+        startDate: "2025-01-20",
+        endDate: "2026-01-20",
+        foodInstructions: "With meals",
+        notes: "Anticoagulant. Watch for bruising.",
+        refillDays: 2,
+      },
     ],
     appointments: [
-      { id: "apt-4", date: "2026-06-28", time: "11:00", type: "INR Test", doctor: "Dr. Opoku", location: "Komfo Anokye Hospital", notes: "Warfarin monitoring" },
-      { id: "apt-5", date: "2026-08-10", time: "10:30", type: "Cardiology", doctor: "Dr. Opoku", location: "Komfo Anokye Hospital", notes: "Heart rhythm review" },
+      {
+        id: "apt-4",
+        date: "2026-06-28",
+        time: "11:00",
+        type: "INR Test",
+        doctor: "Dr. Opoku",
+        location: "Komfo Anokye Hospital",
+        notes: "Warfarin monitoring",
+      },
+      {
+        id: "apt-5",
+        date: "2026-08-10",
+        time: "10:30",
+        type: "Cardiology",
+        doctor: "Dr. Opoku",
+        location: "Komfo Anokye Hospital",
+        notes: "Heart rhythm review",
+      },
     ],
     logs: [],
   },
@@ -212,12 +323,28 @@ if (typeof window !== "undefined") {
 
 export const store = {
   getAll: () => patients,
-  get: (id: string) => patients.find(p => p.id === id),
-  subscribe: (fn: Listener) => { listeners.add(fn); return () => listeners.delete(fn); },
-  emit: () => listeners.forEach(l => l()),
-  addPatient(p: Omit<Patient, "id" | "medications" | "logs" | "appointments" | "medicalConditions" | "allergies">) {
+  get: (id: string) => patients.find((p) => p.id === id),
+  subscribe: (fn: Listener) => {
+    listeners.add(fn);
+    return () => listeners.delete(fn);
+  },
+  emit: () => listeners.forEach((l) => l()),
+  addPatient(
+    p: Omit<
+      Patient,
+      "id" | "medications" | "logs" | "appointments" | "medicalConditions" | "allergies"
+    >,
+  ) {
     const id = `PMS-${1000 + patients.length + 1}`;
-    const newPatient = { ...p, id, medications: [], appointments: [], medicalConditions: [], allergies: [], logs: [] } as Patient;
+    const newPatient = {
+      ...p,
+      id,
+      medications: [],
+      appointments: [],
+      medicalConditions: [],
+      allergies: [],
+      logs: [],
+    } as Patient;
     patients = [...patients, newPatient];
     store.emit();
     syncPatientToApi(newPatient);
@@ -225,26 +352,38 @@ export const store = {
   },
   upsertMed(patientId: string, med: Medication) {
     let updatedPatient: Patient | undefined;
-    patients = patients.map(p => {
+    patients = patients.map((p) => {
       if (p.id !== patientId) return p;
-      const exists = p.medications.some(m => m.id === med.id);
-      updatedPatient = { ...p, medications: exists ? p.medications.map(m => m.id === med.id ? med : m) : [...p.medications, med] };
+      const exists = p.medications.some((m) => m.id === med.id);
+      updatedPatient = {
+        ...p,
+        medications: exists
+          ? p.medications.map((m) => (m.id === med.id ? med : m))
+          : [...p.medications, med],
+      };
       return updatedPatient;
     });
     store.emit();
     if (updatedPatient) syncPatientToApi(updatedPatient);
     try {
-      import("./notifications").then(({ scheduleMedReminders, requestPermission }) => {
-        requestPermission().then(granted => {
-          if (!granted) return;
-          scheduleMedReminders(patientId, med, () => store.logDose(patientId, med.id, "taken"), () => store.logDose(patientId, med.id, "missed"));
-        });
-      }).catch(() => {});
+      import("./notifications")
+        .then(({ scheduleMedReminders, requestPermission }) => {
+          requestPermission().then((granted) => {
+            if (!granted) return;
+            scheduleMedReminders(
+              patientId,
+              med,
+              () => store.logDose(patientId, med.id, "taken"),
+              () => store.logDose(patientId, med.id, "missed"),
+            );
+          });
+        })
+        .catch(() => {});
     } catch (e) {}
   },
   updatePatient(id: string, data: Partial<Omit<Patient, "id" | "medications" | "logs">>) {
     let updatedPatient: Patient | undefined;
-    patients = patients.map(p => {
+    patients = patients.map((p) => {
       if (p.id !== id) return p;
       updatedPatient = { ...p, ...data } as Patient;
       return updatedPatient;
@@ -253,7 +392,7 @@ export const store = {
     if (updatedPatient) syncPatientToApi(updatedPatient);
   },
   deletePatient(id: string) {
-    patients = patients.filter(p => p.id !== id);
+    patients = patients.filter((p) => p.id !== id);
     store.emit();
     try {
       fetch(`/api/patients/${id}`, { method: "DELETE" }).catch(() => {});
@@ -261,28 +400,37 @@ export const store = {
   },
   removeMed(patientId: string, medId: string) {
     let updatedPatient: Patient | undefined;
-    patients = patients.map(p => {
+    patients = patients.map((p) => {
       if (p.id !== patientId) return p;
-      updatedPatient = { ...p, medications: p.medications.filter(m => m.id !== medId) };
+      updatedPatient = { ...p, medications: p.medications.filter((m) => m.id !== medId) };
       return updatedPatient;
     });
     store.emit();
     if (updatedPatient) syncPatientToApi(updatedPatient);
     try {
-      import("./notifications").then(({ cancelMedReminders }) => { cancelMedReminders(patientId, medId); }).catch(() => {});
+      import("./notifications")
+        .then(({ cancelMedReminders }) => {
+          cancelMedReminders(patientId, medId);
+        })
+        .catch(() => {});
     } catch (e) {}
   },
   logDose(patientId: string, medId: string, status: DoseStatus) {
     let updatedPatient: Patient | undefined;
-    patients = patients.map(p => {
+    patients = patients.map((p) => {
       if (p.id !== patientId) return p;
       updatedPatient = {
         ...p,
-        logs: [...p.logs, {
-          id: `log-${Date.now()}`, medicationId: medId,
-          scheduledTime: new Date().toISOString(), status,
-          takenAt: status === "taken" ? new Date().toISOString() : undefined,
-        }],
+        logs: [
+          ...p.logs,
+          {
+            id: `log-${Date.now()}`,
+            medicationId: medId,
+            scheduledTime: new Date().toISOString(),
+            status,
+            takenAt: status === "taken" ? new Date().toISOString() : undefined,
+          },
+        ],
       };
       return updatedPatient;
     });
@@ -309,9 +457,9 @@ export function usePatient(id: string) {
 
 export function adherenceStats(p: Patient) {
   const total = p.logs.length;
-  const taken = p.logs.filter(l => l.status === "taken").length;
-  const late = p.logs.filter(l => l.status === "late").length;
-  const missed = p.logs.filter(l => l.status === "missed").length;
+  const taken = p.logs.filter((l) => l.status === "taken").length;
+  const late = p.logs.filter((l) => l.status === "late").length;
+  const missed = p.logs.filter((l) => l.status === "missed").length;
   const pct = total ? Math.round(((taken + late * 0.7) / total) * 100) : 0;
   return { total, taken, late, missed, pct, totalMeds: p.medications.length };
 }
@@ -322,8 +470,13 @@ export function todaysSchedule(p: Patient) {
   for (const m of p.medications) {
     for (const t of m.reminderTimes) {
       const [h, mm] = t.split(":").map(Number);
-      const d = new Date(); d.setHours(h, mm, 0, 0);
-      items.push({ med: m, time: t, minutesUntil: Math.round((d.getTime() - now.getTime()) / 60000) });
+      const d = new Date();
+      d.setHours(h, mm, 0, 0);
+      items.push({
+        med: m,
+        time: t,
+        minutesUntil: Math.round((d.getTime() - now.getTime()) / 60000),
+      });
     }
   }
   return items.sort((a, b) => a.time.localeCompare(b.time));
