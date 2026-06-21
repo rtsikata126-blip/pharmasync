@@ -312,12 +312,15 @@ async function loadPatientsFromApi() {
 
 /** Seed initial data to the API, then load any existing patients */
 if (typeof window !== "undefined") {
+  // Load patient data immediately so patients created by the pharmacist
+  // are available as soon as the patient portal loads (no waiting for sync delay)
+  loadPatientsFromApi();
+
   // Delay seeding to let the app hydrate first
   setTimeout(async () => {
-    // First sync all seed patients to the API
+    // Sync all seed patients to the API (upsert by ID, so no duplicates)
     await syncAllToApi();
-    // Then load patients from the API so newly-created patients (by the pharmacist)
-    // are visible when the patient portal loads in a different tab/session
+    // Reload to pick up any patients created by other sessions
     await loadPatientsFromApi();
   }, 1000);
 }
