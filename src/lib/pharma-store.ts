@@ -294,6 +294,23 @@ async function syncAllToApi() {
   }
 }
 
+/** Normalize a patient object, filling in missing fields with safe defaults */
+function normalizePatient(p: Partial<Patient>): Patient {
+  return {
+    id: p.id ?? "",
+    fullName: p.fullName ?? "",
+    age: p.age ?? 0,
+    gender: p.gender ?? "Other",
+    phone: p.phone ?? "",
+    ghanaHealthId: p.ghanaHealthId ?? "",
+    medicalConditions: Array.isArray(p.medicalConditions) ? p.medicalConditions : [],
+    allergies: Array.isArray(p.allergies) ? p.allergies : [],
+    medications: Array.isArray(p.medications) ? p.medications : [],
+    appointments: Array.isArray(p.appointments) ? p.appointments : [],
+    logs: Array.isArray(p.logs) ? p.logs : [],
+  };
+}
+
 /** Load all patients from the shared API, replacing the in-memory store */
 async function loadPatientsFromApi() {
   try {
@@ -301,7 +318,8 @@ async function loadPatientsFromApi() {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        patients = data as Patient[];
+        // Normalize each patient to ensure all required fields exist
+        patients = data.map(normalizePatient);
         store.emit();
       }
     }
