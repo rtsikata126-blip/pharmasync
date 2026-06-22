@@ -1,21 +1,16 @@
 import webpush from 'web-push';
-import fs from 'fs';
-import path from 'path';
+import { readJSON, writeJSON } from './storage.js';
 
-const DATA_DIR = path.resolve('./data');
-const SUB_FILE = path.join(DATA_DIR, 'subscriptions.json');
+const SUBS_KEY = 'subscriptions';
 
-function ensureDataDir() {
-  try { if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR); } catch (e) {}
-  try { if (!fs.existsSync(SUB_FILE)) fs.writeFileSync(SUB_FILE, JSON.stringify({})); } catch (e) {}
+async function readSubs() {
+  const data = await readJSON(SUBS_KEY);
+  return data && typeof data === 'object' ? data : {};
 }
 
-function readSubs() {
-  ensureDataDir();
-  try { return JSON.parse(fs.readFileSync(SUB_FILE)); } catch (e) { return {}; }
+async function writeSubs(obj) {
+  await writeJSON(SUBS_KEY, obj);
 }
-
-function writeSubs(obj) { ensureDataDir(); fs.writeFileSync(SUB_FILE, JSON.stringify(obj, null, 2)); }
 
 // Simple store uses file persistence for demo
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || process.env.VITE_VAPID_PUBLIC_KEY;
@@ -36,10 +31,10 @@ export default async (req, res) => {
       const body = await getBody(req);
       const { patientId, subscription } = JSON.parse(body.toString());
       if (!patientId || !subscription) return res.status(400).json({ error: 'patientId and subscription required' });
-      const obj = readSubs();
+      const obj = await readSubs();
       obj[patientId] = obj[patientId] || [];
       obj[patientId].push(subscription);
-      writeSubs(obj);
+      await writeSubs(obj);
       return res.json({ ok: true });
     } catch (e) {
       console.error(e);
@@ -51,24 +46,17 @@ export default async (req, res) => {
     try {
       const body = await getBody(req);
       const { patientId, payload } = JSON.parse(body.toString());
-      const obj = readSubs();
+      const obj = await readSubs();
       const list = obj[patientId] || [];
       const results = [];
-+      // prepare to log attempts
-+      const logsPath = path.join(DATA_DIR, 'logs.json');
-+      let logs = [];
-+      try { if (fs.existsSync(logsPath)) logs = JSON.parse(fs.readFileSync(logsPath)); } catch (e) { logs = []; }
       for (const s of list) {
         try {
           await webpush.sendNotification(s, JSON.stringify(payload));
           results.push({ ok: true });
-+          logs.push({ patientId, timestamp: new Date().toISOString(), status: 'sent', payload });
         } catch (err) {
           results.push({ ok: false, error: err.message });
-+          logs.push({ patientId, timestamp: new Date().toISOString(), status: 'error', error: err.message, payload });
         }
       }
-+      try { fs.writeFileSync(logsPath, JSON.stringify(logs, null, 2)); } catch (e) { console.error('Failed writing logs', e); }
       return res.json({ results });
     } catch (e) {
       console.error(e);
@@ -82,17 +70,13 @@ export default async (req, res) => {
       const body = await getBody(req);
       const { patientId, payload } = JSON.parse(body.toString());
       if (!patientId || !payload) return res.status(400).json({ error: 'patientId and payload required' });
-      const obj = readSubs();
+      const obj = await readSubs();
       const list = obj[patientId] || [];
       const results = [];
-+      const logsPath = path.join(DATA_DIR, 'logs.json');
-+      let logs = [];
-+      try { if (fs.existsSync(logsPath)) logs = JSON.parse(fs.readFileSync(logsPath)); } catch (e) { logs = []; }
-+      for (const s of list) {
-+        try { await webpush.sendNotification(s, JSON.stringify(payload)); results.push({ ok: true }); logs.push({ patientId, timestamp: new Date().toISOString(), status: 'sent', payload }); } catch (err) { results.push({ ok: false, error: err.message }); logs.push({ patientId, timestamp: new Date().toISOString(), status: 'error', error: err.message, payload }); }
-+      }
-+      try { fs.writeFileSync(logsPath, JSON.stringify(logs, null, 2)); } catch (e) { console.error('Failed writing logs', e); }
-+      return res.json({ results });
+      for (const s of list) {
+        try { await webpush.sendNotification(s, JSON.stringify(payload)); results.push({ ok: true }); } catch (err) { results.push({ ok: false, error: err.message }); }
+      }
+      return res.json({ results });
     } catch (e) { console.error(e); return res.status(500).json({ error: e.message }); }
   }
 

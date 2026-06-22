@@ -1,42 +1,11 @@
 /**
  * Patient data API — shared between Pharmacist Portal and Patient Portal.
- * Uses file-based persistence in data/patients.json.
+ * Uses Vercel KV (Redis) in production; falls back to file-based JSON locally.
  */
 
-import fs from "fs";
-import path from "path";
+import { readJSON, writeJSON } from "./storage.js";
 
-const DATA_DIR = path.resolve("./data");
-const PATIENTS_FILE = path.join(DATA_DIR, "patients.json");
-
-function ensureDataDir() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  } catch (e) {
-    // ignore
-  }
-}
-
-function readPatients() {
-  ensureDataDir();
-  try {
-    if (fs.existsSync(PATIENTS_FILE)) {
-      return JSON.parse(fs.readFileSync(PATIENTS_FILE, "utf-8"));
-    }
-  } catch (e) {
-    console.error("Failed to read patients file:", e);
-  }
-  return {};
-}
-
-function writePatients(data) {
-  ensureDataDir();
-  try {
-    fs.writeFileSync(PATIENTS_FILE, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.error("Failed to write patients file:", e);
-  }
-}
+const PATIENTS_KEY = "patients";
 
 function getBody(req) {
   return new Promise((resolve, reject) => {
@@ -58,6 +27,17 @@ function parseUrl(url) {
     });
   }
   return { path: pathPart, query };
+}
+
+/** Read all patients from storage, returning an object keyed by patient ID. */
+async function readPatients() {
+  const data = await readJSON(PATIENTS_KEY);
+  return data && typeof data === "object" ? data : {};
+}
+
+/** Write the full patients object to storage. */
+async function writePatients(data) {
+  await writeJSON(PATIENTS_KEY, data);
 }
 
 export default async (req, res) => {
@@ -82,9 +62,9 @@ export default async (req, res) => {
       if (!body.id || !body.fullName) {
         return res.status(400).json({ error: "Patient id and fullName are required" });
       }
-      const patients = readPatients();
+      const patients = await readPatients();
       patients[body.id] = { ...patients[body.id], ...body };
-      writePatients(patients);
+      await writePatients(patients);
       return res.json({ ok: true, patient: patients[body.id] });
     } catch (e) {
       console.error(e);
@@ -96,9 +76,9 @@ export default async (req, res) => {
   if (req.method === "PUT" && patientId) {
     try {
       const body = JSON.parse((await getBody(req)).toString());
-      const patients = readPatients();
+      const patients = await readPatients();
       patients[patientId] = { ...patients[patientId], ...body };
-      writePatients(patients);
+      await writePatients(patients);
       return res.json({ ok: true, patient: patients[patientId] });
     } catch (e) {
       console.error(e);
@@ -109,9 +89,9 @@ export default async (req, res) => {
   // DELETE /api/patients/:id — delete a patient
   if (req.method === "DELETE" && patientId) {
     try {
-      const patients = readPatients();
+      const patients = await readPatients();
       delete patients[patientId];
-      writePatients(patients);
+      await writePatients(patients);
       return res.json({ ok: true });
     } catch (e) {
       console.error(e);
@@ -122,7 +102,7 @@ export default async (req, res) => {
   // GET /api/patients — list all patients
   if (req.method === "GET" && !patientId) {
     try {
-      const patients = readPatients();
+      const patients = await readPatients();
       return res.json(Object.values(patients));
     } catch (e) {
       console.error(e);
@@ -134,7 +114,7 @@ export default async (req, res) => {
   // GET /api/patients/:id/medications — get medications only
   if (req.method === "GET" && patientId) {
     try {
-      const patients = readPatients();
+      const patients = await readPatients();
       const patient = patients[patientId];
       if (!patient) {
         return res.status(404).json({ error: "Patient not found" });
