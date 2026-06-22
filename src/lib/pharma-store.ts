@@ -272,7 +272,19 @@ seedPatients[2].logs = generateLogs(seedPatients[2].medications);
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
-let patients: Patient[] = seedPatients;
+
+/**
+ * Patients start as empty. We load from the API first; only seed if the
+ * API is empty or unavailable. This eliminates the race where seed data
+ * overwrites persisted patients on refresh.
+ */
+let patients: Patient[] = [];
+
+/** Whether the initial load from the API has completed (success or fallback). */
+let _loaded = false;
+
+/** The most recent API error message, if any. */
+let _apiError: string | null = null;
 
 /**
  * Tracks local mutations so async loadPatientsFromApi() doesn't overwrite
@@ -282,15 +294,24 @@ let localMutationCount = 0;
 let apiLoadId = 0;
 
 /** Sync a single patient record to the shared API */
-async function syncPatientToApi(patient: Patient) {
+async function syncPatientToApi(patient: Patient): Promise<boolean> {
   try {
-    await fetch("/api/patients", {
+    const res = await fetch("/api/patients", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(patient),
     });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      _apiError = errBody.error || `HTTP ${res.status}`;
+      store.emit();
+      return false;
+    }
+    return true;
   } catch (e) {
-    // API may not be available in dev — silently continue
+    _apiError = e instanceof Error ? e.message : "Network error saving patient";
+    store.emit();
+    return false;
   }
 }
 
@@ -332,38 +353,54 @@ async function loadPatientsFromApi() {
       // AND this is still the most recent load request
       if (
         Array.isArray(data) &&
-        data.length > 0 &&
         loadId === apiLoadId &&
         localMutationCount === snapshotCount
       ) {
-        // Normalize each patient to ensure all required fields exist
-        patients = data.map(normalizePatient);
+        if (data.length > 0) {
+          // Normalize each patient to ensure all required fields exist
+          patients = data.map(normalizePatient);
+        } else {
+          // API is empty — this is a fresh start. Seed with initial data.
+          patients = [...seedPatients];
+          // Persist the seed data so it's available next load
+          syncAllToApi();
+        }
+        _loaded = true;
         store.emit();
+        return;
       }
+    } else {
+      _apiError = `API returned ${res.status}`;
     }
   } catch (e) {
-    // API may not be available — keep seed data
+    _apiError = e instanceof Error ? e.message : "Network error loading patients";
+  }
+
+  // If we reached here, loading failed — fall back to seed data
+  if (!_loaded) {
+    patients = [...seedPatients];
+    _loaded = true;
+    _apiError = _apiError || "Could not reach server — using local data";
+    store.emit();
   }
 }
 
 /** Seed initial data to the API, then load any existing patients */
 if (typeof window !== "undefined") {
-  // Load patient data immediately so patients created by the pharmacist
-  // are available as soon as the patient portal loads (no waiting for sync delay)
   loadPatientsFromApi();
-
-  // Delay seeding to let the app hydrate first
-  setTimeout(async () => {
-    // Sync all seed patients to the API (upsert by ID, so no duplicates)
-    await syncAllToApi();
-    // Reload to pick up any patients created by other sessions
-    await loadPatientsFromApi();
-  }, 1000);
 }
 
 export const store = {
   getAll: () => patients,
   get: (id: string) => patients.find((p) => p.id === id),
+  /** True once the initial load from the API has completed. */
+  isLoaded: () => _loaded,
+  /** The most recent API error message, or null if the last operation succeeded. */
+  apiError: () => _apiError,
+  /** Clear the stored API error after it has been shown to the user. */
+  clearApiError: () => {
+    _apiError = null;
+  },
   subscribe: (fn: Listener) => {
     listeners.add(fn);
     return () => listeners.delete(fn);
@@ -376,7 +413,8 @@ export const store = {
     >,
   ) {
     localMutationCount++;
-    const id = `PMS-${1000 + patients.length + 1}`;
+    // Generate a unique ID based on timestamp + random to avoid duplicates
+    const id = `PMS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
     const newPatient = {
       ...p,
       id,
@@ -438,9 +476,10 @@ export const store = {
     localMutationCount++;
     patients = patients.filter((p) => p.id !== id);
     store.emit();
-    try {
-      fetch(`/api/patients/${id}`, { method: "DELETE" }).catch(() => {});
-    } catch (e) {}
+    fetch(`/api/patients/${id}`, { method: "DELETE" }).catch((e) => {
+      _apiError = e instanceof Error ? e.message : "Network error deleting patient";
+      store.emit();
+    });
   },
   removeMed(patientId: string, medId: string) {
     localMutationCount++;
@@ -498,6 +537,13 @@ export function usePatient(id: string) {
     (cb) => store.subscribe(cb),
     () => store.get(id),
     () => store.get(id),
+  );
+}
+export function useStoreLoaded() {
+  return useSyncExternalStore(
+    (cb) => store.subscribe(cb),
+    () => store.isLoaded(),
+    () => store.isLoaded(),
   );
 }
 

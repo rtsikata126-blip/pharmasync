@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Plus,
   Users,
@@ -10,9 +10,10 @@ import {
   Pencil,
   Trash2,
   LogOut,
+  Loader2,
 } from "lucide-react";
 import { AppHeader } from "@/components/pharma-ui";
-import { usePatients, store, adherenceStats } from "@/lib/pharma-store";
+import { usePatients, useStoreLoaded, store, adherenceStats } from "@/lib/pharma-store";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +42,35 @@ export const Route = createFileRoute("/pharmacist/")({
 
 function PharmacistDashboard() {
   const patients = usePatients();
+  const loaded = useStoreLoaded();
   const navigate = useNavigate();
+
+  // Show any API error once on mount
+  useEffect(() => {
+    if (loaded && store.apiError()) {
+      const err = store.apiError()!;
+      store.clearApiError();
+      toast.error(err);
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AppHeader
+          title="Pharmacist Portal"
+          subtitle="Dr Tsikata Raphael • Greenfield Pharmacy"
+          backTo="/"
+        />
+        <main className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+          <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p className="text-sm font-medium">Loading patient data…</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -70,7 +99,7 @@ function PharmacistDashboard() {
     patients.reduce((s, p) => s + adherenceStats(p).pct, 0) / Math.max(patients.length, 1),
   );
 
-  const submit = () => {
+  const submit = async () => {
     if (!form.fullName || !form.age) return toast.error("Name and age are required");
     const id = store.addPatient({
       fullName: form.fullName,
@@ -82,6 +111,14 @@ function PharmacistDashboard() {
     toast.success(`Patient created (${id})`);
     setOpen(false);
     setForm({ fullName: "", age: "", gender: "Male", phone: "", ghanaHealthId: "" });
+    // Check for API sync error after a delay to let the async fetch complete
+    setTimeout(() => {
+      if (store.apiError()) {
+        const err = store.apiError()!;
+        store.clearApiError();
+        toast.error(`Patient saved locally but sync to server failed: ${err}`);
+      }
+    }, 2000);
   };
 
   const openEdit = (id: string) => {
@@ -98,7 +135,7 @@ function PharmacistDashboard() {
     setEditOpen(true);
   };
 
-  const submitEdit = () => {
+  const submitEdit = async () => {
     if (!editForm.fullName || !editForm.age) return toast.error("Name and age are required");
     store.updatePatient(editForm.id, {
       fullName: editForm.fullName,
@@ -109,13 +146,27 @@ function PharmacistDashboard() {
     });
     toast.success("Patient profile updated");
     setEditOpen(false);
+    setTimeout(() => {
+      if (store.apiError()) {
+        const err = store.apiError()!;
+        store.clearApiError();
+        toast.error(`Saved locally but sync to server failed: ${err}`);
+      }
+    }, 2000);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     store.deletePatient(deleteTarget);
     toast.success("Patient deleted");
     setDeleteTarget(null);
+    setTimeout(() => {
+      if (store.apiError()) {
+        const err = store.apiError()!;
+        store.clearApiError();
+        toast.error(`Deleted locally but server sync failed: ${err}`);
+      }
+    }, 2000);
   };
 
   return (

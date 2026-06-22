@@ -32,7 +32,9 @@ export const Route = createFileRoute("/patient/$id")({
     </div>
   ),
   loader: ({ params }) => {
-    if (!store.get(params.id)) throw notFound();
+    // Only throw notFound if the store has already loaded and the patient
+    // truly doesn't exist. Otherwise, the component will handle the loading.
+    if (store.isLoaded() && !store.get(params.id)) throw notFound();
     return null;
   },
   component: PatientDashboard,

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { Pill, Download, X } from "lucide-react";
-import { store } from "@/lib/pharma-store";
+import { Pill, Download, X, Loader2 } from "lucide-react";
+import { store, useStoreLoaded } from "@/lib/pharma-store";
 
 export const Route = createFileRoute("/patient/")({
   head: () => ({ meta: [{ title: "Patient Portal — PharmaSync" }] }),
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/patient/")({
 
 function PatientPortalLanding() {
   const navigate = useNavigate();
+  const loaded = useStoreLoaded();
   const [patientId, setPatientId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
@@ -50,6 +51,10 @@ function PatientPortalLanding() {
     const id = patientId.trim().toUpperCase();
     if (!id) {
       setError("Please enter your Patient ID.");
+      return;
+    }
+    if (!loaded) {
+      setError("Patient records are still loading. Please wait a moment and try again.");
       return;
     }
     const patient = store.get(id);
